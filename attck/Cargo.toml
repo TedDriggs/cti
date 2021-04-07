@@ -1,0 +1,25 @@
+[package]
+name = "attck"
+version = "0.1.0"
+authors = ["Ted Driggs <ted.driggs@outlook.com>"]
+edition = "2018"
+license = "MIT"
+
+[dependencies]
+anyhow = "1.0.40"
+chrono = { version = "0.4.19", features = ["serde"] }
+once_self_cell = "0.6.2"
+petgraph = "0.5.1"
+serde = { version = "1.0.125", features = ["derive"] }
+serde_json = "1.0.64"
+strum = { version = "0.20.0", features = ["derive"] }
+stix = { version = "0.1.0", path = "../stix" }
+thiserror = "1.0.24"
+url = { version = "2.2.1", features = ["serde"] }
+uuid = "0.8.2"
+
+[features]
+default = ["enterprise", "ics", "mobile"]
+enterprise = []
+ics = []
+mobile = []
