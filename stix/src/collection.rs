@@ -106,8 +106,10 @@ macro_rules! typed_collection {
 }
 
 impl Collection {
+    typed_collection!(attack_patterns, AttackPattern);
     typed_collection!(intrusion_sets, IntrusionSet);
     typed_collection!(malwares, Malware);
+    typed_collection!(relationships, Relationship);
     typed_collection!(tools, Tool);
 }
 
