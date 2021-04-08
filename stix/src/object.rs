@@ -4,7 +4,7 @@ use chrono::{DateTime, Utc};
 use serde::Deserialize;
 
 use crate::{
-    attack_pattern, intrusion_set, malware, reference::ExternalReference, relationship, tool, Id,
+    reference::ExternalReference, AttackPattern, Id, IntrusionSet, Malware, Relationship, Tool,
 };
 
 #[derive(Deserialize)]
@@ -113,15 +113,15 @@ impl<T: AsRef<CommonProperties>> Object for T {
     strum(serialize_all = "kebab-case")
 )]
 pub enum Declaration {
-    AttackPattern(attack_pattern::Data),
+    AttackPattern(AttackPattern),
     Bundle,
     CourseOfAction(serde::de::IgnoredAny),
     Identity(serde::de::IgnoredAny),
-    IntrusionSet(intrusion_set::Data),
-    Malware(malware::Data),
+    IntrusionSet(IntrusionSet),
+    Malware(Malware),
     MarkingDefinition,
-    Relationship(relationship::Data),
-    Tool(tool::Data),
+    Relationship(Relationship),
+    Tool(Tool),
     XMitreMatrix,
     XMitreTactic,
 }

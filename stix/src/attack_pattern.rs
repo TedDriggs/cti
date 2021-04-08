@@ -3,7 +3,7 @@ use serde::Deserialize;
 use crate::CommonProperties;
 
 #[derive(Deserialize)]
-pub struct Data {
+pub struct AttackPattern {
     #[serde(flatten)]
     base: CommonProperties,
     pub name: String,
@@ -11,7 +11,7 @@ pub struct Data {
     pub description: Option<String>,
 }
 
-impl Data {
+impl AttackPattern {
     pub fn name(&self) -> &str {
         &self.name
     }
@@ -21,7 +21,7 @@ impl Data {
     }
 }
 
-impl AsRef<CommonProperties> for Data {
+impl AsRef<CommonProperties> for AttackPattern {
     fn as_ref(&self) -> &CommonProperties {
         &self.base
     }

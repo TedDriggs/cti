@@ -1,17 +1,21 @@
-pub mod attack_pattern;
+mod attack_pattern;
 mod bundle;
 mod collection;
 mod id;
-pub mod intrusion_set;
-pub mod malware;
+mod intrusion_set;
+mod malware;
 mod object;
 mod reference;
 pub mod relationship;
-pub mod tool;
+mod tool;
 
+pub use attack_pattern::AttackPattern;
 pub use bundle::Bundle;
 pub use collection::{Attached, Collection, TypedCollection};
 pub use id::{Id, IdParseError};
+pub use intrusion_set::IntrusionSet;
+pub use malware::Malware;
 pub use object::{CommonProperties, Declaration, Object, ObjectType};
 pub use reference::{ExternalReference, KillChainPhase};
-pub use relationship::RelationshipType;
+pub use relationship::{Relationship, RelationshipType};
+pub use tool::Tool;

@@ -14,7 +14,7 @@ pub enum RelationshipType {
 }
 
 #[derive(Deserialize)]
-pub struct Data {
+pub struct Relationship {
     #[serde(flatten)]
     base: CommonProperties,
     pub source_ref: Id,
@@ -22,7 +22,7 @@ pub struct Data {
     pub relationship_type: RelationshipType,
 }
 
-impl AsRef<CommonProperties> for Data {
+impl AsRef<CommonProperties> for Relationship {
     fn as_ref(&self) -> &CommonProperties {
         &self.base
     }
@@ -52,7 +52,7 @@ impl Filter {
     }
 }
 
-impl PartialEq<Filter> for Data {
+impl PartialEq<Filter> for Relationship {
     fn eq(&self, other: &Filter) -> bool {
         let peer = match other.direction {
             EdgeDirection::Outgoing => &self.target_ref,

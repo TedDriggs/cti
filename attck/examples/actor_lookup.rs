@@ -1,8 +1,8 @@
 //! Demonstrate loading, searching, and displaying results from a data set.
 
-use stix::{intrusion_set, Attached, Collection, Object};
+use stix::{Attached, Collection, IntrusionSet, Object};
 
-fn display_actor<'a>(actor: &Attached<'a, intrusion_set::Data>) {
+fn display_actor<'a>(actor: &Attached<'a, IntrusionSet>) {
     println!("{} ({})", actor.name(), actor.id());
     println!("============");
 
@@ -27,10 +27,7 @@ fn display_actor<'a>(actor: &Attached<'a, intrusion_set::Data>) {
     }
 }
 
-fn search<'store>(
-    store: &'store Collection,
-    term: &str,
-) -> Option<Attached<'store, intrusion_set::Data>> {
+fn search<'store>(store: &'store Collection, term: &str) -> Option<Attached<'store, IntrusionSet>> {
     store
         .intrusion_sets()
         .find(|a| a.name() == term || a.aliases().contains(term))

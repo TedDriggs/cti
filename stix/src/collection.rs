@@ -11,18 +11,18 @@ use petgraph::{
 };
 
 use crate::{
-    attack_pattern, intrusion_set, malware,
     relationship::{self, Filter},
-    tool, Bundle, CommonProperties, Declaration, Id, Object, ObjectType, RelationshipType,
+    AttackPattern, Bundle, CommonProperties, Declaration, Id, IntrusionSet, Malware, Object,
+    ObjectType, Relationship, RelationshipType, Tool,
 };
 
 #[derive(Default)]
 pub struct CollectionBuilder {
-    attack_patterns: IndexMap<Id, attack_pattern::Data>,
-    intrusion_sets: IndexMap<Id, intrusion_set::Data>,
-    malwares: IndexMap<Id, malware::Data>,
-    relationships: IndexMap<Id, relationship::Data>,
-    tools: IndexMap<Id, tool::Data>,
+    attack_patterns: IndexMap<Id, AttackPattern>,
+    intrusion_sets: IndexMap<Id, IntrusionSet>,
+    malwares: IndexMap<Id, Malware>,
+    relationships: IndexMap<Id, Relationship>,
+    tools: IndexMap<Id, Tool>,
 }
 
 impl CollectionBuilder {
@@ -65,7 +65,7 @@ impl CollectionBuilder {
 
 struct Indexed<'a> {
     id_nodes: HashMap<&'a Id, NodeIndex>,
-    relationship_graph: Graph<&'a Id, &'a relationship::Data>,
+    relationship_graph: Graph<&'a Id, &'a Relationship>,
 }
 
 impl<'a> From<&'a CollectionBuilder> for Indexed<'a> {
@@ -106,9 +106,9 @@ macro_rules! typed_collection {
 }
 
 impl Collection {
-    typed_collection!(intrusion_sets, intrusion_set::Data);
-    typed_collection!(malwares, malware::Data);
-    typed_collection!(tools, tool::Data);
+    typed_collection!(intrusion_sets, IntrusionSet);
+    typed_collection!(malwares, Malware);
+    typed_collection!(tools, Tool);
 }
 
 impl Collection {
@@ -128,7 +128,7 @@ impl Collection {
         &'a self,
         id: &Id,
         dir: EdgeDirection,
-    ) -> impl Iterator<Item = &'a relationship::Data> {
+    ) -> impl Iterator<Item = &'a Relationship> {
         match self.node_index(id) {
             None => EdgeIter::Empty,
             Some(idx) => {
@@ -169,8 +169,8 @@ enum EdgeIter<E> {
     Edges(E),
 }
 
-impl<'a, E: Iterator<Item = EdgeReference<'a, &'a relationship::Data>>> Iterator for EdgeIter<E> {
-    type Item = &'a relationship::Data;
+impl<'a, E: Iterator<Item = EdgeReference<'a, &'a Relationship>>> Iterator for EdgeIter<E> {
+    type Item = &'a Relationship;
 
     fn next(&mut self) -> Option<Self::Item> {
         match self {
@@ -260,51 +260,51 @@ impl<'a, D: AsRef<CommonProperties>> AsRef<CommonProperties> for Attached<'a, D>
     }
 }
 
-impl<'a> Attached<'a, attack_pattern::Data> {
+impl<'a> Attached<'a, AttackPattern> {
     rel!(
         subtechniques,
         Filter::incoming(RelationshipType::SubtechniqueOf, ObjectType::AttackPattern),
-        attack_pattern::Data,
+        AttackPattern,
         attack_patterns
     );
 }
 
-impl<'a> Attached<'a, intrusion_set::Data> {
+impl<'a> Attached<'a, IntrusionSet> {
     rel!(
         tools,
         Filter::outgoing(RelationshipType::Uses, ObjectType::Tool),
-        tool::Data
+        Tool
     );
     rel!(
         attack_patterns,
         Filter::outgoing(RelationshipType::Uses, ObjectType::AttackPattern),
-        attack_pattern::Data
+        AttackPattern
     );
     rel!(
         malwares,
         Filter::outgoing(RelationshipType::Uses, ObjectType::Malware),
-        malware::Data
+        Malware
     );
 }
 
-impl<'a> Attached<'a, malware::Data> {
+impl<'a> Attached<'a, Malware> {
     rel!(
         intrusion_sets,
         Filter::incoming(RelationshipType::Uses, ObjectType::IntrusionSet),
-        intrusion_set::Data
+        IntrusionSet
     );
 
     rel!(
         attack_patterns,
         Filter::incoming(RelationshipType::Uses, ObjectType::AttackPattern),
-        attack_pattern::Data
+        AttackPattern
     );
 }
 
-impl<'a> Attached<'a, tool::Data> {
+impl<'a> Attached<'a, Tool> {
     rel!(
         intrusion_sets,
         Filter::incoming(RelationshipType::Uses, ObjectType::IntrusionSet),
-        intrusion_set::Data
+        IntrusionSet
     );
 }

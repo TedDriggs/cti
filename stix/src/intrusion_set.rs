@@ -5,7 +5,7 @@ use serde::Deserialize;
 use crate::CommonProperties;
 
 #[derive(Deserialize)]
-pub struct Data {
+pub struct IntrusionSet {
     #[serde(flatten)]
     common: CommonProperties,
     name: String,
@@ -15,7 +15,7 @@ pub struct Data {
     aliases: BTreeSet<String>,
 }
 
-impl Data {
+impl IntrusionSet {
     pub fn name(&self) -> &str {
         &self.name
     }
@@ -29,7 +29,7 @@ impl Data {
     }
 }
 
-impl AsRef<CommonProperties> for Data {
+impl AsRef<CommonProperties> for IntrusionSet {
     fn as_ref(&self) -> &CommonProperties {
         &self.common
     }
