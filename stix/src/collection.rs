@@ -12,13 +12,14 @@ use petgraph::{
 
 use crate::{
     relationship::{self, Filter},
-    AttackPattern, Bundle, CommonProperties, Declaration, Id, IntrusionSet, Malware, Object,
-    ObjectType, Relationship, RelationshipType, Tool,
+    AttackPattern, Bundle, CommonProperties, Declaration, Id, Identity, IntrusionSet, Malware,
+    Object, ObjectType, Relationship, RelationshipType, Tool,
 };
 
 #[derive(Default)]
 pub struct CollectionBuilder {
     attack_patterns: IndexMap<Id, AttackPattern>,
+    identities: IndexMap<Id, Identity>,
     intrusion_sets: IndexMap<Id, IntrusionSet>,
     malwares: IndexMap<Id, Malware>,
     relationships: IndexMap<Id, Relationship>,
@@ -32,13 +33,15 @@ impl CollectionBuilder {
                 Declaration::Bundle => {
                     panic!("What does a nested bundle mean?");
                 }
-                Declaration::Identity(_)
-                | Declaration::CourseOfAction(_)
+                Declaration::CourseOfAction(_)
                 | Declaration::MarkingDefinition
                 | Declaration::XMitreMatrix
                 | Declaration::XMitreTactic => {}
                 Declaration::AttackPattern(v) => {
                     self.attack_patterns.insert(v.id().clone(), v);
+                }
+                Declaration::Identity(v) => {
+                    self.identities.insert(v.id().clone(), v);
                 }
                 Declaration::IntrusionSet(v) => {
                     self.intrusion_sets.insert(v.id().clone(), v);
@@ -107,6 +110,7 @@ macro_rules! typed_collection {
 
 impl Collection {
     typed_collection!(attack_patterns, AttackPattern);
+    typed_collection!(identities, Identity);
     typed_collection!(intrusion_sets, IntrusionSet);
     typed_collection!(malwares, Malware);
     typed_collection!(relationships, Relationship);
@@ -262,6 +266,12 @@ impl<'a, D> Deref for Node<'a, D> {
 impl<'a, D: AsRef<CommonProperties>> AsRef<CommonProperties> for Node<'a, D> {
     fn as_ref(&self) -> &CommonProperties {
         self.data.as_ref()
+    }
+}
+
+impl<'a, D: Object> Node<'a, D> {
+    pub fn created_by(&'a self) -> Option<Node<'a, Identity>> {
+        Some(self.create(&self.coll.data().identities[self.created_by_ref()?]))
     }
 }
 
