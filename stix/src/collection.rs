@@ -197,10 +197,10 @@ impl<'a, D> TypedCollection<'a, D> {
 }
 
 impl<'a, D> Iterator for TypedCollection<'a, D> {
-    type Item = Attached<'a, D>;
+    type Item = Node<'a, D>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.iter.next().map(|data| Attached {
+        self.iter.next().map(|data| Node {
             data,
             coll: self.collection,
         })
@@ -220,7 +220,7 @@ macro_rules! rel {
         rel!($name, $filter, $data, $name);
     };
     ($name:ident, $filter:expr, $data:ty, $coll:ident) => {
-        pub fn $name(&'a self) -> impl Iterator<Item = Attached<'a, $data>> {
+        pub fn $name(&'a self) -> impl Iterator<Item = Node<'a, $data>> {
             self.coll
                 .peers_matching(self.id(), $filter)
                 .map(move |d: &Id| self.create(&self.coll.data().$coll[d]))
@@ -228,14 +228,17 @@ macro_rules! rel {
     };
 }
 
-pub struct Attached<'a, D> {
+/// A STIX domain object in an in-memory `Collection`.
+///
+/// This allows easy traversal of the threat intelligence graph.
+pub struct Node<'a, D> {
     data: &'a D,
     coll: &'a Collection,
 }
 
-impl<'a, D> Attached<'a, D> {
-    fn create<T>(&'a self, data: &'a T) -> Attached<'a, T> {
-        Attached {
+impl<'a, D> Node<'a, D> {
+    fn create<T>(&'a self, data: &'a T) -> Node<'a, T> {
+        Node {
             data,
             coll: self.coll,
         }
@@ -246,7 +249,7 @@ impl<'a, D> Attached<'a, D> {
     }
 }
 
-impl<'a, D> Deref for Attached<'a, D> {
+impl<'a, D> Deref for Node<'a, D> {
     type Target = D;
 
     fn deref(&self) -> &Self::Target {
@@ -254,13 +257,13 @@ impl<'a, D> Deref for Attached<'a, D> {
     }
 }
 
-impl<'a, D: AsRef<CommonProperties>> AsRef<CommonProperties> for Attached<'a, D> {
+impl<'a, D: AsRef<CommonProperties>> AsRef<CommonProperties> for Node<'a, D> {
     fn as_ref(&self) -> &CommonProperties {
         self.data.as_ref()
     }
 }
 
-impl<'a> Attached<'a, AttackPattern> {
+impl<'a> Node<'a, AttackPattern> {
     rel!(
         subtechniques,
         Filter::incoming(RelationshipType::SubtechniqueOf, ObjectType::AttackPattern),
@@ -269,7 +272,7 @@ impl<'a> Attached<'a, AttackPattern> {
     );
 }
 
-impl<'a> Attached<'a, IntrusionSet> {
+impl<'a> Node<'a, IntrusionSet> {
     rel!(
         tools,
         Filter::outgoing(RelationshipType::Uses, ObjectType::Tool),
@@ -287,7 +290,7 @@ impl<'a> Attached<'a, IntrusionSet> {
     );
 }
 
-impl<'a> Attached<'a, Malware> {
+impl<'a> Node<'a, Malware> {
     rel!(
         intrusion_sets,
         Filter::incoming(RelationshipType::Uses, ObjectType::IntrusionSet),
@@ -301,7 +304,7 @@ impl<'a> Attached<'a, Malware> {
     );
 }
 
-impl<'a> Attached<'a, Tool> {
+impl<'a> Node<'a, Tool> {
     rel!(
         intrusion_sets,
         Filter::incoming(RelationshipType::Uses, ObjectType::IntrusionSet),

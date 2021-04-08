@@ -11,7 +11,7 @@ mod tool;
 
 pub use attack_pattern::AttackPattern;
 pub use bundle::Bundle;
-pub use collection::{Attached, Collection, TypedCollection};
+pub use collection::{Collection, Node, TypedCollection};
 pub use id::{Id, IdParseError};
 pub use intrusion_set::IntrusionSet;
 pub use malware::Malware;
