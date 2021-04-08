@@ -2,7 +2,7 @@ use std::fmt;
 
 use serde::Deserialize;
 
-use crate::CommonProperties;
+use crate::{CommonProperties, TypedObject};
 
 #[derive(Deserialize)]
 pub struct Identity {
@@ -33,6 +33,10 @@ impl AsRef<CommonProperties> for Identity {
     fn as_ref(&self) -> &CommonProperties {
         &self.common
     }
+}
+
+impl TypedObject for Identity {
+    const TYPE: &'static str = "identity";
 }
 
 /// Contact information for an [`Identity`].

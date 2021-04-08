@@ -20,7 +20,7 @@ pub use id::{Id, IdParseError};
 pub use identity::Identity;
 pub use intrusion_set::IntrusionSet;
 pub use malware::Malware;
-pub use object::{CommonProperties, Declaration, Object, ObjectType};
+pub use object::{CommonProperties, Declaration, Object, TypedObject};
 pub use reference::{ExternalReference, KillChainPhase};
 pub use relationship::{Relationship, RelationshipType};
 pub use tool::Tool;

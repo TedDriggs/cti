@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use crate::CommonProperties;
+use crate::{CommonProperties, TypedObject};
 
 #[derive(Deserialize)]
 pub struct AttackPattern {
@@ -19,6 +19,10 @@ impl AttackPattern {
     pub fn description(&self) -> Option<&str> {
         self.description.as_ref().map(|s| s.as_str())
     }
+}
+
+impl TypedObject for AttackPattern {
+    const TYPE: &'static str = "attack-pattern";
 }
 
 impl AsRef<CommonProperties> for AttackPattern {

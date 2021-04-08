@@ -1,18 +1,26 @@
 use serde::{de::Error as _, Deserialize, Deserializer, Serialize, Serializer};
-use std::{fmt, str::FromStr};
+use std::{borrow::Cow, fmt, str::FromStr};
 use thiserror::Error;
 use uuid::Uuid;
 
-use crate::ObjectType;
+use crate::TypedObject;
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Id {
-    namespace: ObjectType,
+    namespace: Cow<'static, str>,
     id: Uuid,
 }
 
 impl Id {
-    pub fn object_type(&self) -> &ObjectType {
+    /// Create a new ID for the specified object type.
+    pub fn new<T: TypedObject>(uuid: Uuid) -> Self {
+        Self {
+            namespace: Cow::Borrowed(T::TYPE),
+            id: uuid,
+        }
+    }
+
+    pub fn object_type(&self) -> &str {
         &self.namespace
     }
 
@@ -39,9 +47,12 @@ impl FromStr for Id {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut parts = s.splitn(2, "--");
         let raw_ns = parts.next().ok_or(IdParseError::TooFewParts)?;
-        let namespace = raw_ns
-            .parse()
-            .map_err(|_| IdParseError::UnknownType(raw_ns.into()))?;
+
+        if raw_ns.chars().any(|c| c.is_uppercase()) {
+            return Err(IdParseError::ObjectType(raw_ns.to_string()));
+        }
+
+        let namespace = Cow::Owned(raw_ns.to_string());
         let id = parts.next().ok_or(IdParseError::TooFewParts)?.parse()?;
 
         Ok(Id { namespace, id })
@@ -67,18 +78,13 @@ impl<'de> Deserialize<'de> for Id {
     }
 }
 
-impl PartialEq<ObjectType> for Id {
-    fn eq(&self, other: &ObjectType) -> bool {
-        self.object_type() == other
-    }
-}
-
 #[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum IdParseError {
     #[error("Not enough parts. An ID is a namespace and UUID joined by '--'")]
     TooFewParts,
-    #[error("Unknown object type `{}`", .0)]
-    UnknownType(String),
+    #[error("Invalid object-type string `{}`", .0)]
+    ObjectType(String),
     #[error("Unable to parse UUID")]
     Uuid(#[from] uuid::Error),
 }

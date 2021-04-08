@@ -106,16 +106,23 @@ impl<T: AsRef<CommonProperties>> Object for T {
     }
 }
 
-#[derive(Deserialize, strum::EnumDiscriminants)]
+/// A STIX object associated with a specific ID type.
+///
+/// All instances of the struct should have this as their ID.
+pub trait TypedObject {
+    /// The kebab-case type used as the object's ID prefix and in the `type` field
+    /// for declarations of the object.
+    ///
+    /// # Examples
+    /// * `course-of-action`
+    /// * `intrusion-set`
+    const TYPE: &'static str;
+}
+
+#[derive(Deserialize)]
 #[serde(tag = "type", rename_all = "kebab-case")]
-#[strum_discriminants(
-    name(ObjectType),
-    derive(strum::Display, strum::EnumString, PartialOrd, Ord, Hash),
-    strum(serialize_all = "kebab-case")
-)]
 pub enum Declaration {
     AttackPattern(AttackPattern),
-    Bundle,
     CourseOfAction(CourseOfAction),
     Identity(Identity),
     IntrusionSet(IntrusionSet),

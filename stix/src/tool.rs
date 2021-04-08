@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use crate::CommonProperties;
+use crate::{CommonProperties, TypedObject};
 
 #[derive(Deserialize)]
 pub struct Tool {
@@ -19,6 +19,10 @@ impl Tool {
     pub fn description(&self) -> Option<&str> {
         self.description.as_ref().map(|s| s.as_str())
     }
+}
+
+impl TypedObject for Tool {
+    const TYPE: &'static str = "tool";
 }
 
 impl AsRef<CommonProperties> for Tool {

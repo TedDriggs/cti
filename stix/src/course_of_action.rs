@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use crate::CommonProperties;
+use crate::{CommonProperties, TypedObject};
 
 #[derive(Deserialize)]
 pub struct CourseOfAction {
@@ -19,6 +19,10 @@ impl CourseOfAction {
     pub fn description(&self) -> Option<&str> {
         self.description.as_ref().map(|s| s.as_str())
     }
+}
+
+impl TypedObject for CourseOfAction {
+    const TYPE: &'static str = "course-of-action";
 }
 
 impl AsRef<CommonProperties> for CourseOfAction {

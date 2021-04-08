@@ -13,7 +13,7 @@ use petgraph::{
 use crate::{
     relationship::{self, Filter},
     AttackPattern, Bundle, CommonProperties, CourseOfAction, Declaration, Id, Identity,
-    IntrusionSet, Malware, Object, ObjectType, Relationship, RelationshipType, Tool,
+    IntrusionSet, Malware, Object, Relationship, RelationshipType, Tool,
 };
 
 #[derive(Default)]
@@ -31,9 +31,6 @@ impl CollectionBuilder {
     pub fn add_bundle(&mut self, bundle: Bundle) {
         for item in bundle.objects {
             match item {
-                Declaration::Bundle => {
-                    panic!("What does a nested bundle mean?");
-                }
                 Declaration::AttackPattern(v) => {
                     self.attack_patterns.insert(v.id().clone(), v);
                 }
@@ -226,8 +223,17 @@ impl<'id, 'a, D> Index<&'id Id> for TypedCollection<'a, D> {
 }
 
 macro_rules! rel {
-    ($name:ident, $filter:expr, $data:ty) => {
-        rel!($name, $filter, $data, $name);
+    ($name:ident -> $rel:expr, $data:ty) => {
+        rel!($name, Filter::outgoing::<$data>($rel), $data, $name);
+    };
+    ($name:ident <- $rel:expr, $data:ty) => {
+        rel!($name, Filter::incoming::<$data>($rel), $data, $name);
+    };
+    ($name:ident -> $rel:expr, $data:ty, $coll:ident) => {
+        rel!($name, Filter::outgoing::<$data>($rel), $data, $coll);
+    };
+    ($name:ident <- $rel:expr, $data:ty, $coll:ident) => {
+        rel!($name, Filter::incoming::<$data>($rel), $data, $coll);
     };
     ($name:ident, $filter:expr, $data:ty, $coll:ident) => {
         pub fn $name(&'a self) -> impl Iterator<Item = Node<'a, $data>> {
@@ -280,73 +286,26 @@ impl<'a, D: Object> Node<'a, D> {
 }
 
 impl<'a> Node<'a, AttackPattern> {
-    rel!(
-        subtechniques,
-        Filter::incoming(RelationshipType::SubtechniqueOf, ObjectType::AttackPattern),
-        AttackPattern,
-        attack_patterns
-    );
+    rel!(subtechniques <- RelationshipType::SubtechniqueOf, AttackPattern, attack_patterns);
 }
 
 impl<'a> Node<'a, CourseOfAction> {
-    rel!(
-        mitigates_attack_patterns,
-        Filter::outgoing(RelationshipType::Mitigates, ObjectType::AttackPattern),
-        AttackPattern,
-        attack_patterns
-    );
-
-    rel!(
-        mitigates_malwares,
-        Filter::outgoing(RelationshipType::Mitigates, ObjectType::Malware),
-        Malware,
-        malwares
-    );
-
-    rel!(
-        mitigates_tools,
-        Filter::outgoing(RelationshipType::Mitigates, ObjectType::Tool),
-        Tool,
-        tools
-    );
+    rel!(mitigates_attack_patterns -> RelationshipType::Mitigates, AttackPattern, attack_patterns);
+    rel!(mitigates_malwares -> RelationshipType::Mitigates, Malware, malwares);
+    rel!(mitigates_tools -> RelationshipType::Mitigates, Tool, tools);
 }
 
 impl<'a> Node<'a, IntrusionSet> {
-    rel!(
-        tools,
-        Filter::outgoing(RelationshipType::Uses, ObjectType::Tool),
-        Tool
-    );
-    rel!(
-        attack_patterns,
-        Filter::outgoing(RelationshipType::Uses, ObjectType::AttackPattern),
-        AttackPattern
-    );
-    rel!(
-        malwares,
-        Filter::outgoing(RelationshipType::Uses, ObjectType::Malware),
-        Malware
-    );
+    rel!(attack_patterns -> RelationshipType::Uses, AttackPattern);
+    rel!(malwares -> RelationshipType::Uses, Malware);
+    rel!(tools -> RelationshipType::Uses, Tool);
 }
 
 impl<'a> Node<'a, Malware> {
-    rel!(
-        intrusion_sets,
-        Filter::incoming(RelationshipType::Uses, ObjectType::IntrusionSet),
-        IntrusionSet
-    );
-
-    rel!(
-        attack_patterns,
-        Filter::incoming(RelationshipType::Uses, ObjectType::AttackPattern),
-        AttackPattern
-    );
+    rel!(attack_patterns <- RelationshipType::Uses, AttackPattern);
+    rel!(intrusion_sets <- RelationshipType::Uses, IntrusionSet);
 }
 
 impl<'a> Node<'a, Tool> {
-    rel!(
-        intrusion_sets,
-        Filter::incoming(RelationshipType::Uses, ObjectType::IntrusionSet),
-        IntrusionSet
-    );
+    rel!(intrusion_sets <- RelationshipType::Uses, IntrusionSet);
 }
