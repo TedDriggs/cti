@@ -3,10 +3,7 @@ use std::collections::BTreeSet;
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
 
-use crate::{
-    reference::ExternalReference, AttackPattern, CourseOfAction, Id, Identity, IntrusionSet,
-    Malware, Relationship, Tool,
-};
+use crate::{reference::ExternalReference, Id};
 
 #[derive(Deserialize)]
 pub struct CommonProperties {
@@ -117,19 +114,4 @@ pub trait TypedObject {
     /// * `course-of-action`
     /// * `intrusion-set`
     const TYPE: &'static str;
-}
-
-#[derive(Deserialize)]
-#[serde(tag = "type", rename_all = "kebab-case")]
-pub enum Declaration {
-    AttackPattern(AttackPattern),
-    CourseOfAction(CourseOfAction),
-    Identity(Identity),
-    IntrusionSet(IntrusionSet),
-    Malware(Malware),
-    MarkingDefinition,
-    Relationship(Relationship),
-    Tool(Tool),
-    XMitreMatrix,
-    XMitreTactic,
 }

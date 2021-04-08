@@ -1,14 +1,14 @@
 use serde::Deserialize;
 
-use crate::{Declaration, Id, TypedObject};
+use crate::{Id, TypedObject};
 
 #[derive(Deserialize)]
-pub struct Bundle {
+pub struct Bundle<T> {
     pub id: Id,
     pub spec_version: String,
-    pub objects: Vec<Declaration>,
+    pub objects: Vec<T>,
 }
 
-impl TypedObject for Bundle {
+impl<T> TypedObject for Bundle<T> {
     const TYPE: &'static str = "bundle";
 }

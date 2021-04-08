@@ -9,12 +9,28 @@ use petgraph::{
     graph::{EdgeReference, NodeIndex},
     EdgeDirection, Graph,
 };
+use serde::Deserialize;
 
 use crate::{
     relationship::{self, Filter},
-    AttackPattern, Bundle, CommonProperties, CourseOfAction, Declaration, Id, Identity,
-    IntrusionSet, Malware, Object, Relationship, RelationshipType, Tool,
+    AttackPattern, Bundle, CommonProperties, CourseOfAction, Id, Identity, IntrusionSet, Malware,
+    Object, Relationship, RelationshipType, Tool,
 };
+
+#[derive(Deserialize)]
+#[serde(tag = "type", rename_all = "kebab-case")]
+pub enum Declaration {
+    AttackPattern(AttackPattern),
+    CourseOfAction(CourseOfAction),
+    Identity(Identity),
+    IntrusionSet(IntrusionSet),
+    Malware(Malware),
+    MarkingDefinition,
+    Relationship(Relationship),
+    Tool(Tool),
+    XMitreMatrix,
+    XMitreTactic,
+}
 
 #[derive(Default)]
 pub struct CollectionBuilder {
@@ -28,7 +44,7 @@ pub struct CollectionBuilder {
 }
 
 impl CollectionBuilder {
-    pub fn add_bundle(&mut self, bundle: Bundle) {
+    pub fn add_bundle(&mut self, bundle: Bundle<Declaration>) {
         for item in bundle.objects {
             match item {
                 Declaration::AttackPattern(v) => {
@@ -163,8 +179,8 @@ impl Collection {
     }
 }
 
-impl From<Bundle> for Collection {
-    fn from(v: Bundle) -> Self {
+impl From<Bundle<Declaration>> for Collection {
+    fn from(v: Bundle<Declaration>) -> Self {
         let mut builder = CollectionBuilder::default();
         builder.add_bundle(v);
         builder.build()
