@@ -12,13 +12,14 @@ use petgraph::{
 
 use crate::{
     relationship::{self, Filter},
-    AttackPattern, Bundle, CommonProperties, Declaration, Id, Identity, IntrusionSet, Malware,
-    Object, ObjectType, Relationship, RelationshipType, Tool,
+    AttackPattern, Bundle, CommonProperties, CourseOfAction, Declaration, Id, Identity,
+    IntrusionSet, Malware, Object, ObjectType, Relationship, RelationshipType, Tool,
 };
 
 #[derive(Default)]
 pub struct CollectionBuilder {
     attack_patterns: IndexMap<Id, AttackPattern>,
+    courses_of_action: IndexMap<Id, CourseOfAction>,
     identities: IndexMap<Id, Identity>,
     intrusion_sets: IndexMap<Id, IntrusionSet>,
     malwares: IndexMap<Id, Malware>,
@@ -33,12 +34,11 @@ impl CollectionBuilder {
                 Declaration::Bundle => {
                     panic!("What does a nested bundle mean?");
                 }
-                Declaration::CourseOfAction(_)
-                | Declaration::MarkingDefinition
-                | Declaration::XMitreMatrix
-                | Declaration::XMitreTactic => {}
                 Declaration::AttackPattern(v) => {
                     self.attack_patterns.insert(v.id().clone(), v);
+                }
+                Declaration::CourseOfAction(v) => {
+                    self.courses_of_action.insert(v.id().clone(), v);
                 }
                 Declaration::Identity(v) => {
                     self.identities.insert(v.id().clone(), v);
@@ -55,6 +55,9 @@ impl CollectionBuilder {
                 Declaration::Tool(v) => {
                     self.tools.insert(v.id().clone(), v);
                 }
+                Declaration::MarkingDefinition
+                | Declaration::XMitreMatrix
+                | Declaration::XMitreTactic => {}
             }
         }
     }
@@ -110,6 +113,7 @@ macro_rules! typed_collection {
 
 impl Collection {
     typed_collection!(attack_patterns, AttackPattern);
+    typed_collection!(courses_of_action, CourseOfAction);
     typed_collection!(identities, Identity);
     typed_collection!(intrusion_sets, IntrusionSet);
     typed_collection!(malwares, Malware);
@@ -281,6 +285,29 @@ impl<'a> Node<'a, AttackPattern> {
         Filter::incoming(RelationshipType::SubtechniqueOf, ObjectType::AttackPattern),
         AttackPattern,
         attack_patterns
+    );
+}
+
+impl<'a> Node<'a, CourseOfAction> {
+    rel!(
+        mitigates_attack_patterns,
+        Filter::outgoing(RelationshipType::Mitigates, ObjectType::AttackPattern),
+        AttackPattern,
+        attack_patterns
+    );
+
+    rel!(
+        mitigates_malwares,
+        Filter::outgoing(RelationshipType::Mitigates, ObjectType::Malware),
+        Malware,
+        malwares
+    );
+
+    rel!(
+        mitigates_tools,
+        Filter::outgoing(RelationshipType::Mitigates, ObjectType::Tool),
+        Tool,
+        tools
     );
 }
 
