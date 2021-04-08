@@ -3,7 +3,9 @@ use std::collections::BTreeSet;
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
 
-use crate::{reference::ExternalReference, Id};
+use crate::{
+    attack_pattern, intrusion_set, malware, reference::ExternalReference, relationship, tool, Id,
+};
 
 #[derive(Deserialize)]
 pub struct CommonProperties {
@@ -23,6 +25,7 @@ pub struct CommonProperties {
     modified: Option<DateTime<Utc>>,
 }
 
+/// Common properties for a STIX Domain Object.
 pub trait Object {
     fn id(&self) -> &Id;
     fn created_by_ref(&self) -> Option<&Id>;
@@ -100,4 +103,25 @@ impl<T: AsRef<CommonProperties>> Object for T {
     fn modified(&self) -> Option<&DateTime<Utc>> {
         self.as_ref().modified()
     }
+}
+
+#[derive(Deserialize, strum::EnumDiscriminants)]
+#[serde(tag = "type", rename_all = "kebab-case")]
+#[strum_discriminants(
+    name(ObjectType),
+    derive(strum::Display, strum::EnumString, PartialOrd, Ord, Hash),
+    strum(serialize_all = "kebab-case")
+)]
+pub enum Declaration {
+    AttackPattern(attack_pattern::Data),
+    Bundle,
+    CourseOfAction(serde::de::IgnoredAny),
+    Identity(serde::de::IgnoredAny),
+    IntrusionSet(intrusion_set::Data),
+    Malware(malware::Data),
+    MarkingDefinition,
+    Relationship(relationship::Data),
+    Tool(tool::Data),
+    XMitreMatrix,
+    XMitreTactic,
 }

@@ -3,14 +3,16 @@ use std::{fmt, str::FromStr};
 use thiserror::Error;
 use uuid::Uuid;
 
-#[derive(PartialEq, Eq, PartialOrd, Ord, Hash)]
+use crate::ObjectType;
+
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Id {
-    namespace: String,
+    namespace: ObjectType,
     id: Uuid,
 }
 
 impl Id {
-    pub fn namespace(&self) -> &str {
+    pub fn object_type(&self) -> &ObjectType {
         &self.namespace
     }
 
@@ -36,13 +38,13 @@ impl FromStr for Id {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut parts = s.splitn(2, "--");
-        let ns = parts.next().ok_or(IdParseError::TooFewParts)?;
+        let raw_ns = parts.next().ok_or(IdParseError::TooFewParts)?;
+        let namespace = raw_ns
+            .parse()
+            .map_err(|_| IdParseError::UnknownType(raw_ns.into()))?;
         let id = parts.next().ok_or(IdParseError::TooFewParts)?.parse()?;
 
-        Ok(Id {
-            namespace: ns.to_string(),
-            id: id,
-        })
+        Ok(Id { namespace, id })
     }
 }
 
@@ -65,10 +67,18 @@ impl<'de> Deserialize<'de> for Id {
     }
 }
 
+impl PartialEq<ObjectType> for Id {
+    fn eq(&self, other: &ObjectType) -> bool {
+        self.object_type() == other
+    }
+}
+
 #[derive(Debug, Error)]
 pub enum IdParseError {
     #[error("Not enough parts. An ID is a namespace and UUID joined by '--'")]
     TooFewParts,
+    #[error("Unknown object type `{}`", .0)]
+    UnknownType(String),
     #[error("Unable to parse UUID")]
     Uuid(#[from] uuid::Error),
 }

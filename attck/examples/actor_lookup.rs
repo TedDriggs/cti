@@ -1,9 +1,8 @@
 //! Demonstrate loading, searching, and displaying results from a data set.
 
-use attck::{Actor, Store};
-use stix::Object;
+use stix::{intrusion_set, Attached, Collection, Object};
 
-fn display_actor(actor: &Actor) {
+fn display_actor<'a>(actor: &Attached<'a, intrusion_set::Data>) {
     println!("{} ({})", actor.name(), actor.id());
     println!("============");
 
@@ -28,9 +27,12 @@ fn display_actor(actor: &Actor) {
     }
 }
 
-fn search<'store>(store: &'store Store, term: &str) -> Option<Actor<'store>> {
+fn search<'store>(
+    store: &'store Collection,
+    term: &str,
+) -> Option<Attached<'store, intrusion_set::Data>> {
     store
-        .actors()
+        .intrusion_sets()
         .find(|a| a.name() == term || a.aliases().contains(term))
 }
 
