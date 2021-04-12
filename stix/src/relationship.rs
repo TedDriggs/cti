@@ -58,13 +58,13 @@ impl Filter {
     }
 }
 
-impl PartialEq<Filter> for Relationship {
-    fn eq(&self, other: &Filter) -> bool {
-        let peer = match other.direction {
-            EdgeDirection::Outgoing => &self.target_ref,
-            EdgeDirection::Incoming => &self.source_ref,
+impl Filter {
+    pub fn matches(&self, rel: &Relationship) -> bool {
+        let peer = match self.direction {
+            EdgeDirection::Outgoing => &rel.target_ref,
+            EdgeDirection::Incoming => &rel.source_ref,
         };
 
-        peer.object_type() == other.peer_type
+        peer.object_type() == self.peer_type
     }
 }

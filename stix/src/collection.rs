@@ -95,11 +95,11 @@ impl<'a> From<&'a CollectionBuilder> for Indexed<'a> {
         for relationship in v.relationships.values() {
             let source_idx = *id_nodes
                 .entry(&relationship.source_ref)
-                .or_insert_with_key(|k| relationship_graph.add_node(*k));
+                .or_insert_with(|| relationship_graph.add_node(&relationship.source_ref));
 
             let target_idx = *id_nodes
                 .entry(&relationship.target_ref)
-                .or_insert_with_key(|k| relationship_graph.add_node(*k));
+                .or_insert_with(|| relationship_graph.add_node(&relationship.target_ref));
             relationship_graph.add_edge(source_idx, target_idx, relationship);
         }
 
@@ -167,7 +167,7 @@ impl Collection {
     ) -> impl Iterator<Item = &'a Id> {
         self.edges_directed(id, filter.direction)
             .filter_map(move |d| {
-                if *d == filter {
+                if filter.matches(d) {
                     match filter.direction {
                         EdgeDirection::Incoming => Some(&d.source_ref),
                         EdgeDirection::Outgoing => Some(&d.target_ref),
