@@ -24,3 +24,14 @@ pub use object::{CommonProperties, Object, TypedObject};
 pub use reference::{ExternalReference, KillChainPhase};
 pub use relationship::{Relationship, RelationshipType};
 pub use tool::Tool;
+
+pub use stix_derive::*;
+
+#[doc(hidden)]
+pub mod export {
+    pub use indexmap::IndexMap;
+    pub use once_self_cell::sync_once_self_cell;
+    pub mod petgraph {
+        pub use ::petgraph::{graph::NodeIndex, Graph};
+    }
+}
