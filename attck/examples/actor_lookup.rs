@@ -1,6 +1,7 @@
 //! Demonstrate loading, searching, and displaying results from a data set.
 
-use stix::{Collection, IntrusionSet, Node, Object};
+use attck::{Collection, Node};
+use stix::{IntrusionSet, Object};
 
 fn display_actor<'a>(actor: &Node<'a, IntrusionSet>) {
     println!("{} ({})", actor.name(), actor.id());
@@ -10,7 +11,7 @@ fn display_actor<'a>(actor: &Node<'a, IntrusionSet>) {
         println!("{}\n", description);
     }
 
-    let mut malwares = actor.malwares().peekable();
+    let mut malwares = actor.uses_malwares().peekable();
     if malwares.peek().is_some() {
         println!("Malware:");
         for malware in malwares {
@@ -18,7 +19,7 @@ fn display_actor<'a>(actor: &Node<'a, IntrusionSet>) {
         }
     }
 
-    let mut tools = actor.tools().peekable();
+    let mut tools = actor.uses_tools().peekable();
     if tools.peek().is_some() {
         println!("Tools:");
         for tool in tools {

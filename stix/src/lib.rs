@@ -5,11 +5,15 @@ mod course_of_action;
 mod id;
 pub mod identity;
 mod intrusion_set;
+pub mod location;
 mod malware;
+mod marking_definition;
 mod object;
 mod reference;
 pub mod relationship;
+mod relationship_graph;
 mod tool;
+mod vulnerability;
 
 pub use attack_pattern::AttackPattern;
 pub use bundle::Bundle;
@@ -19,11 +23,15 @@ pub use id::{Id, IdParseError};
 #[doc(inline)]
 pub use identity::Identity;
 pub use intrusion_set::IntrusionSet;
+pub use location::Location;
 pub use malware::Malware;
+pub use marking_definition::MarkingDefinition;
 pub use object::{CommonProperties, Object, TypedObject};
 pub use reference::{ExternalReference, KillChainPhase};
 pub use relationship::{Relationship, RelationshipType};
+pub use relationship_graph::RelationshipGraph;
 pub use tool::Tool;
+pub use vulnerability::Vulnerability;
 
 pub use stix_derive::*;
 

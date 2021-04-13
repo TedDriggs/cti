@@ -1,4 +1,10 @@
-use stix::{Collection, Declaration};
+mod declaration;
+mod matrix;
+mod tactic;
+
+pub use declaration::*;
+pub use matrix::Matrix;
+pub use tactic::Tactic;
 
 /// Load the complete Enterprise ATT&CK framework packaged with the crate.
 ///

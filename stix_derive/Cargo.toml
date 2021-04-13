@@ -13,3 +13,4 @@ heck = "0.3.2"
 proc-macro2 = "1.0.26"
 quote = "1.0.9"
 syn = { version = "1.0.69", features = ["extra-traits"] }
+strum = { version = "0.20.0", features = ["derive"] }

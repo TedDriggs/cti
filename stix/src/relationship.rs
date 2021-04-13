@@ -9,10 +9,22 @@ use crate::{CommonProperties, Id, TypedObject};
 #[strum(serialize_all = "kebab-case")]
 #[serde(rename_all = "kebab-case")]
 pub enum RelationshipType {
+    Controls,
+    Delivers,
+    DerivedFrom,
+    Downloads,
+    Drops,
+    DuplicateOf,
+    Has,
+    Indicates,
+    LocatedAt,
     Mitigates,
-    Uses,
+    OriginatesFrom,
+    Remediates,
     RevokedBy,
     SubtechniqueOf,
+    Targets,
+    Uses,
 }
 
 #[derive(Deserialize)]
@@ -34,10 +46,10 @@ impl AsRef<CommonProperties> for Relationship {
     }
 }
 
-pub(crate) struct Filter {
-    pub direction: EdgeDirection,
-    pub relationship_type: RelationshipType,
-    pub peer_type: Cow<'static, str>,
+pub struct Filter {
+    pub(crate) direction: EdgeDirection,
+    pub(crate) relationship_type: RelationshipType,
+    pub(crate) peer_type: Cow<'static, str>,
 }
 
 impl Filter {
@@ -65,6 +77,6 @@ impl Filter {
             EdgeDirection::Incoming => &rel.source_ref,
         };
 
-        peer.object_type() == self.peer_type
+        rel.relationship_type == self.relationship_type && peer.object_type() == self.peer_type
     }
 }

@@ -1,20 +1,13 @@
-use std::{
-    collections::HashMap,
-    ops::{Deref, Index},
-};
+use std::ops::{Deref, Index};
 
 use indexmap::IndexMap;
 use once_self_cell::sync_once_self_cell;
-use petgraph::{
-    graph::{EdgeReference, NodeIndex},
-    EdgeDirection, Graph,
-};
 use serde::Deserialize;
 
 use crate::{
     relationship::{self, Filter},
     AttackPattern, Bundle, CommonProperties, CourseOfAction, Id, Identity, IntrusionSet, Malware,
-    Object, Relationship, RelationshipType, Tool,
+    Object, Relationship, RelationshipGraph, RelationshipType, Tool,
 };
 
 #[derive(Deserialize)]
@@ -82,35 +75,13 @@ impl CollectionBuilder {
     }
 }
 
-struct Indexed<'a> {
-    id_nodes: HashMap<&'a Id, NodeIndex>,
-    relationship_graph: Graph<&'a Id, &'a Relationship>,
-}
-
-impl<'a> From<&'a CollectionBuilder> for Indexed<'a> {
-    fn from(v: &'a CollectionBuilder) -> Self {
-        let mut id_nodes = HashMap::new();
-        let mut relationship_graph = Graph::new();
-
-        for relationship in v.relationships.values() {
-            let source_idx = *id_nodes
-                .entry(&relationship.source_ref)
-                .or_insert_with(|| relationship_graph.add_node(&relationship.source_ref));
-
-            let target_idx = *id_nodes
-                .entry(&relationship.target_ref)
-                .or_insert_with(|| relationship_graph.add_node(&relationship.target_ref));
-            relationship_graph.add_edge(source_idx, target_idx, relationship);
-        }
-
-        Self {
-            id_nodes,
-            relationship_graph,
-        }
+impl<'a> Into<RelationshipGraph<'a>> for &'a CollectionBuilder {
+    fn into(self) -> RelationshipGraph<'a> {
+        self.relationships.values().collect()
     }
 }
 
-sync_once_self_cell!(CollectionData, CollectionBuilder, Indexed<'_>);
+sync_once_self_cell!(CollectionData, CollectionBuilder, RelationshipGraph<'_>);
 
 pub struct Collection {
     data: CollectionData,
@@ -139,25 +110,8 @@ impl Collection {
         self.data.get_owner()
     }
 
-    fn indexed<'a>(&'a self) -> &'a Indexed<'a> {
+    fn graph<'a>(&'a self) -> &'a RelationshipGraph<'a> {
         self.data.get_or_init_dependent()
-    }
-
-    fn node_index(&self, id: &Id) -> Option<NodeIndex> {
-        self.indexed().id_nodes.get(id).copied()
-    }
-
-    fn edges_directed<'a>(
-        &'a self,
-        id: &Id,
-        dir: EdgeDirection,
-    ) -> impl Iterator<Item = &'a Relationship> {
-        match self.node_index(id) {
-            None => EdgeIter::Empty,
-            Some(idx) => {
-                EdgeIter::Edges(self.indexed().relationship_graph.edges_directed(idx, dir))
-            }
-        }
     }
 
     fn peers_matching<'a>(
@@ -165,17 +119,7 @@ impl Collection {
         id: &Id,
         filter: relationship::Filter,
     ) -> impl Iterator<Item = &'a Id> {
-        self.edges_directed(id, filter.direction)
-            .filter_map(move |d| {
-                if filter.matches(d) {
-                    match filter.direction {
-                        EdgeDirection::Incoming => Some(&d.source_ref),
-                        EdgeDirection::Outgoing => Some(&d.target_ref),
-                    }
-                } else {
-                    None
-                }
-            })
+        self.graph().peers_matching(id, filter)
     }
 }
 
@@ -184,22 +128,6 @@ impl From<Bundle<Declaration>> for Collection {
         let mut builder = CollectionBuilder::default();
         builder.add_bundle(v);
         builder.build()
-    }
-}
-
-enum EdgeIter<E> {
-    Empty,
-    Edges(E),
-}
-
-impl<'a, E: Iterator<Item = EdgeReference<'a, &'a Relationship>>> Iterator for EdgeIter<E> {
-    type Item = &'a Relationship;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        match self {
-            EdgeIter::Empty => None,
-            EdgeIter::Edges(ref mut edges) => edges.next().map(|e| *e.weight()),
-        }
     }
 }
 
