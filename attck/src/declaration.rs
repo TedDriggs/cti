@@ -1,7 +1,7 @@
 use serde::Deserialize;
 use stix::{
-    AttackPattern, CourseOfAction, Identity, Infrastructure, IntrusionSet, Location, Malware,
-    MarkingDefinition, Relationship, Tool, Vulnerability,
+    AttackPattern, Campaign, CourseOfAction, Identity, Infrastructure, IntrusionSet, Location,
+    Malware, MarkingDefinition, Relationship, Tool, Vulnerability,
 };
 
 use crate::{Matrix, Tactic};
@@ -20,6 +20,20 @@ pub enum Declaration {
         rel(Uses, Vulnerability)
     )]
     AttackPattern(AttackPattern),
+    #[stix(
+        rel(AttributedTo, IntrusionSet),
+        // rel(AttributedTo, ThreatActor),
+        rel(Compromises, Infrastructure),
+        rel(OriginatesFrom, Location),
+        rel(Targets, Identity),
+        rel(Targets, Location),
+        rel(Targets, Vulnerability),
+        rel(Uses, AttackPattern),
+        rel(Uses, Infrastructure),
+        rel(Uses, Malware),
+        rel(Uses, Tool)
+    )]
+    Campaign(Campaign),
     #[stix(
         rel(Mitigates, AttackPattern),
         rel(Mitigates, Malware),

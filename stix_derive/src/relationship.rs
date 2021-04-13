@@ -115,7 +115,13 @@ fn replace_suffix(haystack: &str, needle: &str, replacement: &str) -> String {
 }
 
 fn invert_relationship(name: &str) -> Option<String> {
-    if name.ends_with("_to") {
+    // Change passive voice, e.g. "attributed_to" -> "attributed"
+    if name.ends_with("ed_to") {
+        return Some(name[0..name.len() - "_to".len()].to_string());
+    }
+
+    // Change active voice, e.g "beacons_to" -> "beaconed_to_by"
+    if name.ends_with("s_to") {
         return Some(format!(
             "{}_to_by",
             invert_relationship(&name[0..name.len() - "_to".len()])?
