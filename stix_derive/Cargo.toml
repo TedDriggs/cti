@@ -2,6 +2,7 @@
 name = "stix_derive"
 version = "0.1.0"
 authors = ["Ted Driggs <ted.driggs@outlook.com>"]
+repository = "https://github.com/TedDriggs/cti"
 edition = "2018"
 license = "MIT"
 
