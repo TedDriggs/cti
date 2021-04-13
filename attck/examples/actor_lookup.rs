@@ -15,7 +15,14 @@ fn display_actor<'a>(actor: &Node<'a, IntrusionSet>) {
     if malwares.peek().is_some() {
         println!("Malware:");
         for malware in malwares {
-            println!("- {} ({})", malware.name(), malware.id());
+            match malware.resolve() {
+                Some(malware) => {
+                    println!("- {} ({})", malware.name(), malware.id());
+                }
+                None => {
+                    println!("- Unknown Malware");
+                }
+            }
         }
     }
 
@@ -23,7 +30,14 @@ fn display_actor<'a>(actor: &Node<'a, IntrusionSet>) {
     if tools.peek().is_some() {
         println!("Tools:");
         for tool in tools {
-            println!("- {} ({})", tool.name(), tool.id());
+            match tool.resolve() {
+                Some(tool) => {
+                    println!("- {} ({})", tool.name(), tool.id());
+                }
+                None => {
+                    println!("- Unknown Tool");
+                }
+            }
         }
     }
 }

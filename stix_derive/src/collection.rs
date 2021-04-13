@@ -1,12 +1,15 @@
 use std::{borrow::Cow, collections::HashMap};
 
-use darling::{FromDeriveInput, FromVariant, ast::{Data, Fields}};
+use darling::{
+    ast::{Data, Fields},
+    FromDeriveInput, FromVariant,
+};
 use heck::SnakeCase;
 use proc_macro2::Span;
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::{Generics, Ident, Type, Visibility};
 
-use crate::{Relationship, relationship::RelationshipType};
+use crate::{relationship::RelationshipType, Relationship};
 
 #[derive(FromDeriveInput)]
 #[darling(attributes(stix), supports(enum_newtype))]
@@ -28,8 +31,15 @@ impl Collection {
     }
 
     fn to_rel_matrix<'a>(&'a self) -> RelMatrix<'a> {
-        let objects_by_ident = self.variants_as(|v| (&v.ident, v)).into_iter().collect::<HashMap<_, _>>();
-        let tuples = self.variants_as(|v| v.to_rel_tuples()).into_iter().flatten().collect();
+        let objects_by_ident = self
+            .variants_as(|v| (&v.ident, v))
+            .into_iter()
+            .collect::<HashMap<_, _>>();
+        let tuples = self
+            .variants_as(|v| v.to_rel_tuples())
+            .into_iter()
+            .flatten()
+            .collect();
         RelMatrix {
             objects_by_ident,
             tuples,
@@ -45,6 +55,7 @@ impl ToTokens for Collection {
         let builder_match_arms = self.variants_as(|v| BuilderMatchArm::new(ident, v));
         let store_fields = self.variants_as(FieldDeclaration);
         let resource_iters = self.variants_as(ResourceIter);
+        let ref_impls = self.variants_as(RefImpl);
         let rel_matrix = self.to_rel_matrix();
 
         tokens.append_all(quote! {
@@ -80,6 +91,23 @@ impl ToTokens for Collection {
             }
 
             impl Collection {
+                /// Get the object identified by `id` if it is present in the collection. This function returns a
+                /// `Node` which provides access to the object's relationships within the collection.
+                pub fn get<'id, 'a: 'id, D>(&'a self, id: &'id ::stix::Id) -> Option<Node<'a, D>>
+                where
+                    Ref<'id, 'a, D>: ::stix::Resolve<Output = Node<'a, D>>,
+                {
+                    // TODO return an Err if D::TYPE != id.object_type()
+
+                    ::stix::Resolve::resolve(Ref::<'id, 'a, D> {
+                        id,
+                        collection: self,
+                        object_type: ::std::marker::PhantomData::<D>,
+                    })
+                }
+            }
+
+            impl Collection {
                 #(#resource_iters)*
             }
 
@@ -101,6 +129,40 @@ impl ToTokens for Collection {
                 }
             }
 
+            /// An ID for a resource that may be in the backing collection.
+            ///
+            /// `Ref` is used to allow exploration of STIX collections when not every object referenced is
+            /// present in-memory.
+            #[derive(Clone)]
+            #vis struct Ref<'id, 'collection: 'id, D> {
+                id: &'id ::stix::Id,
+                collection: &'collection Collection,
+                object_type: ::std::marker::PhantomData<D>,
+            }
+
+            impl<'id, 'collection: 'id, D> Ref<'id, 'collection, D> {
+                /// The ID the `Ref` will look up in the collection.
+                pub fn id(&self) -> &'id ::stix::Id {
+                    self.id
+                }
+            }
+
+            impl<'id, 'collection: 'id> Ref<'id, 'collection, #ident> {
+                pub fn downcast<D: ::stix::TypedObject>(self) -> Option<Ref<'id, 'collection, D>> {
+                    if self.id.object_type() == D::TYPE {
+                        Some(Ref {
+                            id: self.id,
+                            collection: self.collection,
+                            object_type: ::std::marker::PhantomData::<D>,
+                        })
+                    } else {
+                        None
+                    }
+                }
+            }
+
+            #(#ref_impls)*
+
             #vis struct Node<'a, D> {
                 data: &'a D,
                 collection: &'a Collection,
@@ -114,11 +176,19 @@ impl ToTokens for Collection {
                 fn link<E>(&'a self, data: &'a E) -> Node<'a, E> {
                     Node::new(data, self.collection)
                 }
+
+                fn create_ref<E>(&self, id: &'a ::stix::Id) -> Ref<'a, 'a, E> {
+                    Ref {
+                        id,
+                        collection: self.collection,
+                        object_type: ::std::marker::PhantomData::<E>,
+                    }
+                }
             }
 
             impl<'a, D> ::std::ops::Deref for Node<'a, D> {
                 type Target = D;
-            
+
                 fn deref(&self) -> &Self::Target {
                     self.data
                 }
@@ -205,7 +275,9 @@ impl Variant {
     }
 
     pub fn to_rel_tuples<'a>(&'a self) -> impl Iterator<Item = RelTuple<'a>> {
-        self.rel.iter().map(move |rel| (&self.ident, &rel.rel, &rel.to))
+        self.rel
+            .iter()
+            .map(move |rel| (&self.ident, &rel.rel, &rel.to))
     }
 }
 
@@ -236,6 +308,36 @@ impl ToTokens for ResourceIter<'_> {
     }
 }
 
+struct RefImpl<'a>(&'a Variant);
+
+impl ToTokens for RefImpl<'_> {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        if let Some(ty) = self.0.ty() {
+            let set_name = self.0.set_name();
+
+            tokens.append_all(quote! {
+                impl<'id, 'collection: 'id> Ref<'id, 'collection, #ty> {
+                    pub fn resolve(self) -> Option<Node<'collection, #ty>> {
+                        let Self { id, collection, .. } = self;
+                        Some(Node {
+                            data: collection.data().#set_name.get(id)?,
+                            collection,
+                        })
+                    }
+                }
+
+                impl<'id, 'collection: 'id> ::stix::Resolve for Ref<'id, 'collection, #ty> {
+                    type Output = Node<'collection, #ty>;
+
+                    fn resolve(self) -> Option<Self::Output> {
+                        Ref::<'id, 'collection, #ty>::resolve(self)
+                    }
+                }
+            });
+        }
+    }
+}
+
 struct RelMatrix<'a> {
     objects_by_ident: HashMap<&'a Ident, &'a Variant>,
     tuples: Vec<RelTuple<'a>>,
@@ -245,18 +347,36 @@ impl ToTokens for RelMatrix<'_> {
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         for (ident, variant) in &self.objects_by_ident {
             let ident_str = ident.to_string();
-            
-            let forward_rows = self.tuples.iter().filter(|tup| tup.0 == &ident_str).map(|i| RelMatrixItem {
-                rel: &i.1,
-                is_reversed: false,
-                dest: self.objects_by_ident.get(i.2).copied().ok_or_else(|| variant_not_found(i.2).write_errors())
-            }).collect::<Vec<_>>();
 
-            let reverse_rows = self.tuples.iter().filter(|tup| tup.2 == &ident_str).map(|i| RelMatrixItem {
-                rel: &i.1,
-                is_reversed: true,
-                dest: self.objects_by_ident.get(i.0).copied().ok_or_else(|| variant_not_found(i.0).write_errors())
-            }).collect::<Vec<_>>();
+            let forward_rows = self
+                .tuples
+                .iter()
+                .filter(|tup| tup.0 == &ident_str)
+                .map(|i| RelMatrixItem {
+                    rel: &i.1,
+                    is_reversed: false,
+                    dest: self
+                        .objects_by_ident
+                        .get(i.2)
+                        .copied()
+                        .ok_or_else(|| variant_not_found(i.2).write_errors()),
+                })
+                .collect::<Vec<_>>();
+
+            let reverse_rows = self
+                .tuples
+                .iter()
+                .filter(|tup| tup.2 == &ident_str)
+                .map(|i| RelMatrixItem {
+                    rel: &i.1,
+                    is_reversed: true,
+                    dest: self
+                        .objects_by_ident
+                        .get(i.0)
+                        .copied()
+                        .ok_or_else(|| variant_not_found(i.0).write_errors()),
+                })
+                .collect::<Vec<_>>();
 
             if forward_rows.is_empty() && reverse_rows.is_empty() {
                 continue;
@@ -288,24 +408,39 @@ struct RelMatrixItem<'a> {
 impl ToTokens for RelMatrixItem<'_> {
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         match self.dest {
-            Ok(dest) => if let Some(ty) = dest.ty() {
-                let rel_type = self.rel;
-                let rel_name = if self.is_reversed { self.rel.reverse_name() } else { self.rel.name() };
-                let dest_name = dest.set_name();
-                let method_name = Ident::new(&format!("{}_{}", rel_name, dest_name), dest.set_name().span());
-                
-                let filter_method_name = Ident::new(if self.is_reversed {"incoming" } else { "outgoing" }, Span::call_site());
+            Ok(dest) => {
+                if let Some(ty) = dest.ty() {
+                    let rel_type = self.rel;
+                    let rel_name = if self.is_reversed {
+                        self.rel.reverse_name()
+                    } else {
+                        self.rel.name()
+                    };
+                    let dest_name = dest.set_name();
+                    let method_name = Ident::new(
+                        &format!("{}_{}", rel_name, dest_name),
+                        dest.set_name().span(),
+                    );
 
-                tokens.append_all(quote! {
-                    pub fn #method_name(&'a self) -> impl ::std::iter::Iterator<Item = Node<'a, #ty>> {
+                    let filter_method_name = Ident::new(
+                        if self.is_reversed {
+                            "incoming"
+                        } else {
+                            "outgoing"
+                        },
+                        Span::call_site(),
+                    );
+
+                    tokens.append_all(quote! {
+                    pub fn #method_name(&'a self) -> impl ::std::iter::Iterator<Item = Ref<'a, 'a, #ty>> {
                         self.collection.graph().peers_matching(
                             ::stix::Object::id(self.data),
                             ::stix::relationship::Filter::#filter_method_name::<#ty>(::stix::RelationshipType::#rel_type),
-                        ).map(move |id| self.link(&self.collection.data().#dest_name[id]))
+                        ).map(move |id| self.create_ref::<#ty>(id))
                     }
                 })
-
-            },
+                }
+            }
             Err(ref e) => tokens.append_all(e.clone()),
         }
     }

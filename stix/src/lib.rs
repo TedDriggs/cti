@@ -43,3 +43,12 @@ pub mod export {
         pub use ::petgraph::{graph::NodeIndex, Graph};
     }
 }
+
+/// Trait for turning a reference in a STIX collection into a data-carrying node.
+pub trait Resolve {
+    /// The node type, containing a reference to the data and the backing collection.
+    type Output;
+
+    /// Produce a collection-attached node for the object identified by the ID.
+    fn resolve(self) -> Option<Self::Output>;
+}
