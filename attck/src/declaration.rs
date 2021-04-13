@@ -8,6 +8,7 @@ use crate::{Matrix, Tactic};
 
 #[derive(Deserialize, stix::Collection)]
 #[serde(tag = "type", rename_all = "kebab-case")]
+#[non_exhaustive]
 pub enum Declaration {
     #[stix(
         rel(Compromises, Infrastructure),

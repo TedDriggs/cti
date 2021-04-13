@@ -8,6 +8,7 @@ use crate::{CommonProperties, Id, TypedObject};
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, strum::Display)]
 #[strum(serialize_all = "kebab-case")]
 #[serde(rename_all = "kebab-case")]
+#[non_exhaustive]
 pub enum RelationshipType {
     AttributedTo,
     AuthoredBy,
