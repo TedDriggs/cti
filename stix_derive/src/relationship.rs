@@ -17,6 +17,7 @@ impl RelationshipType {
             "DerivedFrom" => "derived".to_string(),
             "Drops" => "dropped_by".to_string(),
             "DuplicateOf" => "duplicated_by".to_string(),
+            "Has" => "present_in".to_string(),
             "LocatedAt" => "location_of".to_string(),
             "OriginatesFrom" => "origin_of".to_string(),
             "SubtechniqueOf" => "parent_technique_of".to_string(),
