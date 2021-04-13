@@ -13,6 +13,7 @@ impl RelationshipType {
 
     pub fn reverse_name(&self) -> String {
         match self.0.to_string().as_str() {
+            "AuthoredBy" => "authored".to_string(),
             "Controls" => "controlled_by".to_string(),
             "DerivedFrom" => "derived".to_string(),
             "Drops" => "dropped_by".to_string(),

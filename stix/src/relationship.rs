@@ -10,6 +10,7 @@ use crate::{CommonProperties, Id, TypedObject};
 #[serde(rename_all = "kebab-case")]
 pub enum RelationshipType {
     AttributedTo,
+    AuthoredBy,
     BeaconsTo,
     Compromises,
     Controls,
@@ -21,6 +22,7 @@ pub enum RelationshipType {
     ExfiltratesTo,
     Has,
     Hosts,
+    Impersonates,
     Indicates,
     LocatedAt,
     Mitigates,

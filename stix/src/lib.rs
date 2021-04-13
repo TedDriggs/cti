@@ -14,6 +14,7 @@ mod object;
 mod reference;
 pub mod relationship;
 mod relationship_graph;
+mod threat_actor;
 mod tool;
 mod vulnerability;
 
@@ -34,6 +35,7 @@ pub use object::{CommonProperties, Object, TypedObject};
 pub use reference::{ExternalReference, KillChainPhase};
 pub use relationship::{Relationship, RelationshipType};
 pub use relationship_graph::RelationshipGraph;
+pub use threat_actor::ThreatActor;
 pub use tool::Tool;
 pub use vulnerability::Vulnerability;
 

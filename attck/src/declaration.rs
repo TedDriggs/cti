@@ -1,7 +1,7 @@
 use serde::Deserialize;
 use stix::{
     AttackPattern, Campaign, CourseOfAction, Identity, Infrastructure, IntrusionSet, Location,
-    Malware, MarkingDefinition, Relationship, Tool, Vulnerability,
+    Malware, MarkingDefinition, Relationship, ThreatActor, Tool, Vulnerability,
 };
 
 use crate::{Matrix, Tactic};
@@ -22,7 +22,7 @@ pub enum Declaration {
     AttackPattern(AttackPattern),
     #[stix(
         rel(AttributedTo, IntrusionSet),
-        // rel(AttributedTo, ThreatActor),
+        rel(AttributedTo, ThreatActor),
         rel(Compromises, Infrastructure),
         rel(OriginatesFrom, Location),
         rel(Targets, Identity),
@@ -46,6 +46,7 @@ pub enum Declaration {
     #[stix(rel(LocatedAt, Location))]
     Identity(Identity),
     #[stix(
+        rel(AttributedTo, ThreatActor),
         rel(Hosts, Infrastructure),
         rel(Owns, Infrastructure),
         rel(Targets, Identity),
@@ -70,6 +71,7 @@ pub enum Declaration {
     Infrastructure(Infrastructure),
     Location(Location),
     #[stix(
+        rel(AuthoredBy, ThreatActor),
         rel(BeaconsTo, Infrastructure),
         rel(Controls, Malware),
         // rel(Downloads, File),
@@ -96,6 +98,22 @@ pub enum Declaration {
     #[serde(rename = "x-mitre-tactic")]
     Tactic(Tactic),
     Relationship(Relationship),
+    #[stix(
+        rel(AttributedTo, Identity),
+        rel(Compromises, Infrastructure),
+        rel(Hosts, Infrastructure),
+        rel(Owns, Infrastructure),
+        rel(Impersonates, Identity),
+        rel(LocatedAt, Location),
+        rel(Targets, Identity),
+        rel(Targets, Location),
+        rel(Targets, Vulnerability),
+        rel(Uses, AttackPattern),
+        rel(Uses, Infrastructure),
+        rel(Uses, Malware),
+        rel(Uses, Tool)
+    )]
+    ThreatActor(ThreatActor),
     #[stix(
         rel(Delivers, Malware),
         rel(Drops, Malware),
