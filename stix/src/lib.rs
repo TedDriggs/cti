@@ -4,6 +4,7 @@ mod collection;
 mod course_of_action;
 mod id;
 pub mod identity;
+mod infrastructure;
 mod intrusion_set;
 pub mod location;
 mod malware;
@@ -22,6 +23,7 @@ pub use course_of_action::CourseOfAction;
 pub use id::{Id, IdParseError};
 #[doc(inline)]
 pub use identity::Identity;
+pub use infrastructure::Infrastructure;
 pub use intrusion_set::IntrusionSet;
 pub use location::Location;
 pub use malware::Malware;

@@ -1,7 +1,7 @@
 use serde::Deserialize;
 use stix::{
-    AttackPattern, CourseOfAction, Identity, IntrusionSet, Location, Malware, MarkingDefinition,
-    Relationship, Tool, Vulnerability,
+    AttackPattern, CourseOfAction, Identity, Infrastructure, IntrusionSet, Location, Malware,
+    MarkingDefinition, Relationship, Tool, Vulnerability,
 };
 
 use crate::{Matrix, Tactic};
@@ -10,6 +10,7 @@ use crate::{Matrix, Tactic};
 #[serde(tag = "type", rename_all = "kebab-case")]
 pub enum Declaration {
     #[stix(
+        rel(Compromises, Infrastructure),
         rel(Delivers, Malware),
         rel(Targets, Identity),
         rel(Targets, Location),
@@ -31,16 +32,31 @@ pub enum Declaration {
     #[stix(rel(LocatedAt, Location))]
     Identity(Identity),
     #[stix(
+        rel(Hosts, Infrastructure),
+        rel(Owns, Infrastructure),
         rel(Targets, Identity),
         rel(Targets, Location),
         rel(Targets, Vulnerability),
         rel(Uses, AttackPattern),
+        rel(Uses, Infrastructure),
         rel(Uses, Malware),
         rel(Uses, Tool)
     )]
     IntrusionSet(IntrusionSet),
+    #[stix(
+        rel(Controls, Infrastructure),
+        rel(Controls, Malware),
+        rel(Delivers, Malware),
+        rel(Has, Vulnerability),
+        rel(Hosts, Tool),
+        rel(Hosts, Malware),
+        rel(LocatedAt, Location),
+        rel(Uses, Infrastructure)
+    )]
+    Infrastructure(Infrastructure),
     Location(Location),
     #[stix(
+        rel(BeaconsTo, Infrastructure),
         rel(Controls, Malware),
         // rel(Downloads, File),
         rel(Downloads, Malware),
@@ -48,13 +64,14 @@ pub enum Declaration {
         // rel(Drops, File),
         rel(Drops, Malware),
         rel(Drops, Tool),
+        rel(ExfiltratesTo, Infrastructure),
         rel(OriginatesFrom, Location),
         rel(Targets, Identity),
-        // rel(Targets, Infrastructure),
+        rel(Targets, Infrastructure),
         rel(Targets, Location),
         rel(Targets, Vulnerability),
         rel(Uses, AttackPattern),
-        // rel(Uses, Infrastructure),
+        rel(Uses, Infrastructure),
         rel(Uses, Malware),
         rel(Uses, Tool),
     )]
@@ -70,10 +87,10 @@ pub enum Declaration {
         rel(Drops, Malware),
         rel(Has, Vulnerability),
         rel(Targets, Identity),
-        // rel(Targets, Infrastructure),
+        rel(Targets, Infrastructure),
         rel(Targets, Location),
         rel(Targets, Vulnerability),
-        // rel(Uses, Infrastructure),
+        rel(Uses, Infrastructure)
     )]
     Tool(Tool),
     Vulnerability(Vulnerability),

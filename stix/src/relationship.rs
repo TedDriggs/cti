@@ -9,17 +9,22 @@ use crate::{CommonProperties, Id, TypedObject};
 #[strum(serialize_all = "kebab-case")]
 #[serde(rename_all = "kebab-case")]
 pub enum RelationshipType {
+    BeaconsTo,
+    Compromises,
     Controls,
     Delivers,
     DerivedFrom,
     Downloads,
     Drops,
     DuplicateOf,
+    ExfiltratesTo,
     Has,
+    Hosts,
     Indicates,
     LocatedAt,
     Mitigates,
     OriginatesFrom,
+    Owns,
     Remediates,
     RevokedBy,
     SubtechniqueOf,

@@ -11,7 +11,7 @@ fn display_actor<'a>(actor: &Node<'a, IntrusionSet>) {
         println!("{}\n", description);
     }
 
-    let mut malwares = actor.uses_malwares().peekable();
+    let mut malwares = actor.uses_malware().peekable();
     if malwares.peek().is_some() {
         println!("Malware:");
         for malware in malwares {

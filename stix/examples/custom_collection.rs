@@ -13,7 +13,7 @@ enum Declaration {
 
 fn act_on_collection(coll: &Collection) {
     for ap in coll.attack_patterns() {
-        for _malware in ap.uses_malwares() {}
+        for _malware in ap.uses_malware() {}
     }
 }
 

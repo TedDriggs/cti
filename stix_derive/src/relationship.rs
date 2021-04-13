@@ -114,11 +114,18 @@ fn replace_suffix(haystack: &str, needle: &str, replacement: &str) -> String {
 }
 
 fn invert_relationship(name: &str) -> Option<String> {
+    if name.ends_with("_to") {
+        return Some(format!(
+            "{}_to_by",
+            invert_relationship(&name[0..name.len() - "_to".len()])?
+        ));
+    }
+
     if name.ends_with("d_by") {
         return Some(replace_suffix(name, "d_by", "s"));
     }
 
-    for e_requiring_suffix in &["ds", "rs", "ts"] {
+    for e_requiring_suffix in &["ds", "ns", "rs", "ts"] {
         if name.ends_with(e_requiring_suffix) {
             return Some(replace_suffix(name, "s", "ed_by"));
         }
