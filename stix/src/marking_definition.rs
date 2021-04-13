@@ -2,7 +2,8 @@ use serde::Deserialize;
 
 use crate::CommonProperties;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, stix_derive::TypedObject)]
+#[typed_object(core)]
 pub struct MarkingDefinition {
     #[serde(flatten)]
     common: CommonProperties,

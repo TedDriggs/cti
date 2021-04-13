@@ -1,8 +1,9 @@
 use serde::Deserialize;
 
-use crate::{CommonProperties, TypedObject};
+use crate::CommonProperties;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, stix_derive::TypedObject)]
+#[typed_object(core)]
 pub struct CourseOfAction {
     #[serde(flatten)]
     base: CommonProperties,
@@ -19,10 +20,6 @@ impl CourseOfAction {
     pub fn description(&self) -> Option<&str> {
         self.description.as_ref().map(|s| s.as_str())
     }
-}
-
-impl TypedObject for CourseOfAction {
-    const TYPE: &'static str = "course-of-action";
 }
 
 impl AsRef<CommonProperties> for CourseOfAction {

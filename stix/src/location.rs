@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use crate::{CommonProperties, TypedObject};
+use crate::CommonProperties;
 
 #[derive(Deserialize)]
 pub struct Coordinates {
@@ -16,7 +16,8 @@ pub struct Region(String);
 #[derive(Debug, Deserialize, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Country(String);
 
-#[derive(Deserialize)]
+#[derive(Deserialize, stix_derive::TypedObject)]
+#[typed_object(core)]
 pub struct Location {
     #[serde(flatten)]
     base: CommonProperties,
@@ -51,10 +52,6 @@ impl Location {
     pub fn coordinates(&self) -> Option<&Coordinates> {
         self.coordinates.as_ref()
     }
-}
-
-impl TypedObject for Location {
-    const TYPE: &'static str = "location";
 }
 
 impl AsRef<CommonProperties> for Location {

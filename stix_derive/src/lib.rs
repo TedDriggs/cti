@@ -4,11 +4,13 @@ use quote::quote;
 mod collection;
 mod plurals;
 mod relationship;
+mod stix_crate_path;
 mod typed_object;
 
 use collection::Collection;
 pub(crate) use plurals::pluralize;
 pub(crate) use relationship::Relationship;
+pub(crate) use stix_crate_path::StixCratePath;
 use typed_object::TypedObject;
 
 #[proc_macro_derive(TypedObject, attributes(typed_object))]

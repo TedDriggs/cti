@@ -2,9 +2,10 @@ use std::collections::BTreeSet;
 
 use serde::Deserialize;
 
-use crate::{CommonProperties, KillChainPhase, TypedObject};
+use crate::{CommonProperties, KillChainPhase};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, stix_derive::TypedObject)]
+#[typed_object(core)]
 pub struct Infrastructure {
     #[serde(flatten)]
     common: CommonProperties,
@@ -21,8 +22,4 @@ impl AsRef<CommonProperties> for Infrastructure {
     fn as_ref(&self) -> &CommonProperties {
         &self.common
     }
-}
-
-impl TypedObject for Infrastructure {
-    const TYPE: &'static str = "infrastructure";
 }

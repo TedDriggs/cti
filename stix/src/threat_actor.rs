@@ -3,9 +3,10 @@ use std::collections::BTreeSet;
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
 
-use crate::{CommonProperties, TypedObject};
+use crate::CommonProperties;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, stix_derive::TypedObject)]
+#[typed_object(core)]
 pub struct ThreatActor {
     #[serde(flatten)]
     common: CommonProperties,
@@ -26,8 +27,4 @@ impl AsRef<CommonProperties> for ThreatActor {
     fn as_ref(&self) -> &CommonProperties {
         &self.common
     }
-}
-
-impl TypedObject for ThreatActor {
-    const TYPE: &'static str = "threat-actor";
 }

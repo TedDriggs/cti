@@ -35,17 +35,14 @@ pub enum RelationshipType {
     Uses,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, stix_derive::TypedObject)]
+#[typed_object(core)]
 pub struct Relationship {
     #[serde(flatten)]
     base: CommonProperties,
     pub source_ref: Id,
     pub target_ref: Id,
     pub relationship_type: RelationshipType,
-}
-
-impl TypedObject for Relationship {
-    const TYPE: &'static str = "relationship";
 }
 
 impl AsRef<CommonProperties> for Relationship {

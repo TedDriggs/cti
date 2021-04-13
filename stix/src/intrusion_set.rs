@@ -2,9 +2,10 @@ use std::collections::BTreeSet;
 
 use serde::Deserialize;
 
-use crate::{CommonProperties, TypedObject};
+use crate::CommonProperties;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, stix_derive::TypedObject)]
+#[typed_object(core)]
 pub struct IntrusionSet {
     #[serde(flatten)]
     common: CommonProperties,
@@ -27,10 +28,6 @@ impl IntrusionSet {
     pub fn aliases(&self) -> &BTreeSet<String> {
         &self.aliases
     }
-}
-
-impl TypedObject for IntrusionSet {
-    const TYPE: &'static str = "intrusion-set";
 }
 
 impl AsRef<CommonProperties> for IntrusionSet {

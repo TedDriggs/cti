@@ -3,9 +3,10 @@ use std::collections::BTreeSet;
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
 
-use crate::{CommonProperties, TypedObject};
+use crate::CommonProperties;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, stix_derive::TypedObject)]
+#[typed_object(core)]
 pub struct Campaign {
     #[serde(flatten)]
     common: CommonProperties,
@@ -26,8 +27,4 @@ impl AsRef<CommonProperties> for Campaign {
     fn as_ref(&self) -> &CommonProperties {
         &self.common
     }
-}
-
-impl TypedObject for Campaign {
-    const TYPE: &'static str = "campaign";
 }

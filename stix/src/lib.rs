@@ -1,7 +1,6 @@
 mod attack_pattern;
 mod bundle;
 mod campaign;
-mod collection;
 mod course_of_action;
 mod id;
 pub mod identity;
@@ -21,7 +20,6 @@ mod vulnerability;
 pub use attack_pattern::AttackPattern;
 pub use bundle::Bundle;
 pub use campaign::Campaign;
-pub use collection::{Collection, Declaration, Node, TypedCollection};
 pub use course_of_action::CourseOfAction;
 pub use id::{Id, IdParseError};
 #[doc(inline)]

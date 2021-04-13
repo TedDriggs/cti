@@ -2,9 +2,10 @@ use std::fmt;
 
 use serde::Deserialize;
 
-use crate::{CommonProperties, TypedObject};
+use crate::CommonProperties;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, stix_derive::TypedObject)]
+#[typed_object(core)]
 pub struct Identity {
     #[serde(flatten)]
     common: CommonProperties,
@@ -33,10 +34,6 @@ impl AsRef<CommonProperties> for Identity {
     fn as_ref(&self) -> &CommonProperties {
         &self.common
     }
-}
-
-impl TypedObject for Identity {
-    const TYPE: &'static str = "identity";
 }
 
 /// Contact information for an [`Identity`].
