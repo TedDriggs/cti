@@ -13,6 +13,7 @@ mod object;
 mod reference;
 pub mod relationship;
 mod relationship_graph;
+pub mod standard;
 mod threat_actor;
 mod tool;
 mod vulnerability;
