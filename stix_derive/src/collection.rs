@@ -75,6 +75,11 @@ impl ToTokens for Collection {
             }
 
             impl CollectionBuilder {
+                /// Add a bundle to the collection.
+                ///
+                /// # ID Collisions
+                /// If any of the IDs for objects in `bundle` were already in `self`, they will
+                /// be replaced with the new values.
                 pub fn add_bundle(&mut self, bundle: #stix::Bundle<#ident>) {
                     for declaration in bundle.objects {
                         match declaration {
@@ -83,6 +88,7 @@ impl ToTokens for Collection {
                     }
                 }
 
+                /// Finish adding items to the collection and index it for querying.
                 pub fn build(self) -> Collection {
                     Collection { data: CollectionData::new(self) }
                 }
@@ -96,13 +102,28 @@ impl ToTokens for Collection {
 
             #stix::export::sync_once_self_cell!(CollectionData, CollectionBuilder, #stix::RelationshipGraph<'_>);
 
+            /// An immutable collection of STIX objects. 
+            ///
+            /// A collection has no special meaning beyond being a set of STIX objects all 
+            /// loaded in memory at once.
+            ///
+            /// # Usage
+            /// Create a `Collection` by deserializing JSON into [`Bundle`](stix::Bundle) instances
+            /// and then adding those to a `CollectionBuilder`. Once all bundles are loaded, call
+            /// [`CollectionBuilder::build`] to finish the collection, which will index the objects
+            /// and prepare the collection for querying.
             #vis struct Collection {
                 data: CollectionData
             }
 
             impl Collection {
+                /// Create a new [`CollectionBuilder`].
+                pub fn builder() -> CollectionBuilder {
+                    CollectionBuilder::default()
+                }
+
                 /// Get the object identified by `id` if it is present in the collection. This function returns a
-                /// `Node` which provides access to the object's relationships within the collection.
+                /// [`Node`] which provides access to the object's data and its relationships within the collection.
                 pub fn get<'id, 'a: 'id, D>(&'a self, id: &'id #stix::Id) -> Option<Node<'a, D>>
                 where
                     Ref<'id, 'a, D>: #stix::Resolve<Output = Node<'a, D>>,
@@ -117,6 +138,7 @@ impl ToTokens for Collection {
                 }
             }
 
+            /// Accessors for STIX objects in the collection.
             impl Collection {
                 #(#resource_iters)*
             }
@@ -157,7 +179,10 @@ impl ToTokens for Collection {
                 }
             }
 
+            /// The ID of a STIX object of some type which may be present in the collection.
             impl<'id, 'collection: 'id> Ref<'id, 'collection, #ident> {
+                /// Narrow the type of the reference so that it can be resolved to a [`Node`].
+                /// This requires knowing the concrete type of the data associated with the ID.
                 pub fn downcast<D: #stix::TypedObject>(self) -> Option<Ref<'id, 'collection, D>> {
                     if self.id.object_type() == D::TYPE {
                         Some(Ref {
@@ -173,6 +198,11 @@ impl ToTokens for Collection {
 
             #(#ref_impls)*
 
+            /// A STIX object in the [`Collection`], exposing the object's data and references
+            /// to associated objects in the same collection.
+            ///
+            /// Relationships are expressed as instance methods, scoped using the concrete type
+            /// of the object data, e.g. `Node<'a, IntrusionSet>` exposes `uses_attack_patterns`.
             #vis struct Node<'a, D> {
                 data: &'a D,
                 collection: &'a Collection,
