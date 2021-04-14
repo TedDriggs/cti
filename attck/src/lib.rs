@@ -1,7 +1,9 @@
+mod attack_pattern;
 mod declaration;
 mod matrix;
 mod tactic;
 
+pub use attack_pattern::AttackPattern;
 pub use declaration::*;
 pub use matrix::Matrix;
 pub use tactic::Tactic;

@@ -1,7 +1,10 @@
-use std::{borrow::Cow, collections::HashMap};
+use std::{
+    borrow::Cow,
+    collections::{HashMap, HashSet},
+};
 
 use darling::{
-    ast::{Data, Fields},
+    ast::{Data, Fields, Style},
     FromDeriveInput, FromVariant,
 };
 use heck::SnakeCase;
@@ -52,6 +55,44 @@ impl Collection {
             objects_by_ident,
             tuples,
         }
+    }
+
+    pub(crate) fn stix_crate_path(&self) -> StixCratePath {
+        self.core
+    }
+
+    /// Add variants to the collection. Variants whose idents are already present will have the relationships from
+    /// the new variants added to the existing set.
+    pub fn add_variants(&mut self, variants: Vec<Variant>) -> HashSet<Ident> {
+        let variant_indices = self
+            .data
+            .as_ref()
+            .take_enum()
+            .unwrap()
+            .into_iter()
+            .enumerate()
+            .map(|(idx, variant)| (&variant.ident, idx))
+            .collect::<HashMap<_, _>>();
+
+        let changes_to_make = variants
+            .into_iter()
+            .map(|variant| (variant_indices.get(&variant.ident).copied(), variant))
+            .collect::<Vec<_>>();
+
+        let mut net_new_variants = HashSet::new();
+
+        if let Data::Enum(current_variants) = &mut self.data {
+            for (existing_index, new_variant) in changes_to_make {
+                if let Some(idx) = existing_index {
+                    current_variants[idx].merge(new_variant);
+                } else {
+                    net_new_variants.insert(new_variant.ident.clone());
+                    current_variants.push(new_variant);
+                }
+            }
+        }
+
+        net_new_variants
     }
 }
 
@@ -268,10 +309,10 @@ impl ToTokens for BuilderMatchArm<'_> {
     }
 }
 
-#[derive(FromVariant)]
+#[derive(Clone, FromVariant)]
 #[darling(attributes(stix))]
 pub struct Variant {
-    ident: Ident,
+    pub ident: Ident,
     fields: Fields<Type>,
     #[darling(default)]
     set_name: Option<Ident>,
@@ -280,6 +321,15 @@ pub struct Variant {
 }
 
 impl Variant {
+    pub fn new(ident: Ident, ty: Type, relationships: Vec<Relationship>) -> Self {
+        Self {
+            ident,
+            fields: Fields::new(Style::Tuple, vec![ty]),
+            set_name: None,
+            rel: relationships,
+        }
+    }
+
     pub fn has_value(&self) -> bool {
         self.ty().is_some()
     }
@@ -307,6 +357,10 @@ impl Variant {
         self.rel
             .iter()
             .map(move |rel| (&self.ident, &rel.rel, &rel.to))
+    }
+
+    fn merge(&mut self, other: Variant) {
+        self.rel.extend(other.rel);
     }
 }
 

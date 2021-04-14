@@ -3,7 +3,7 @@ use heck::SnakeCase;
 use quote::ToTokens;
 use syn::{Ident, Meta, NestedMeta};
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct RelationshipType(Ident);
 
 impl RelationshipType {
@@ -52,6 +52,7 @@ impl ToTokens for RelationshipType {
     }
 }
 
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Relationship {
     pub(crate) rel: RelationshipType,
     pub(crate) to: Ident,
