@@ -40,8 +40,9 @@ pub fn derive_collection(input: proc_macro::TokenStream) -> proc_macro::TokenStr
 /// and allow arbitrary additional values.
 ///
 /// # Example
-/// ```rust,no_run
-/// # use crate::vocabulary;
+/// ```rust,ignore
+/// # // This test is ignored because the generated code depends on the `stix` crate
+/// # // and this test can't access that.
 /// vocabulary!(
 ///     /// Doc comments carry through, as do other attributes.
 ///     #[cfg(not(windows))]
