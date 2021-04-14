@@ -16,6 +16,7 @@ mod relationship_graph;
 pub mod standard;
 mod threat_actor;
 mod tool;
+pub mod vocab;
 mod vulnerability;
 
 pub use attack_pattern::AttackPattern;
