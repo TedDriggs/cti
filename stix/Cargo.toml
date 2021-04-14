@@ -6,6 +6,9 @@ repository = "https://github.com/TedDriggs/cti"
 edition = "2018"
 license = "MIT"
 documentation = "https://docs.rs/stix/0.1.0"
+description = """
+Crate for working with STIX 2.0 threat intelligence.
+"""
 
 [dependencies]
 chrono = { version = "0.4.19", features = ["serde"] }

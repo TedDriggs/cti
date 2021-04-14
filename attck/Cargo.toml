@@ -7,6 +7,9 @@ edition = "2018"
 license = "MIT"
 readme = "README.md"
 documentation = "https://docs.rs/attck/0.1.0"
+description = """
+Structure representation of MITRE ATT&CK matrices
+"""
 
 [dependencies]
 anyhow = "1.0.40"
