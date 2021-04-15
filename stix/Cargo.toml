@@ -1,11 +1,11 @@
 [package]
 name = "stix"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Ted Driggs <ted.driggs@outlook.com>"]
 repository = "https://github.com/TedDriggs/cti"
 edition = "2018"
 license = "MIT"
-documentation = "https://docs.rs/stix/0.1.0"
+documentation = "https://docs.rs/stix/0.2.0"
 description = """
 Crate for working with STIX 2.0 threat intelligence.
 """
@@ -17,7 +17,7 @@ once_self_cell = "0.6.2"
 petgraph = "0.5.1"
 serde = { version = "1.0.125", features = ["derive"] }
 strum = { version = "0.20.0", features = ["derive"] }
-stix_derive = { version = "=0.1.0", path = "../stix_derive" }
+stix_derive = { version = "=0.2.0", path = "../stix_derive" }
 thiserror = "1.0.24"
 url = { version = "2.2.1", features = ["serde"] }
 uuid = "0.8.2"
