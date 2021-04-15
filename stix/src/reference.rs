@@ -3,18 +3,18 @@ use url::Url;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ExternalReference {
-    source_name: String,
+    pub source_name: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    external_id: Option<String>,
+    pub external_id: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    url: Option<Url>,
+    pub url: Option<Url>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    description: Option<String>,
+    pub description: Option<String>,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub struct KillChainPhase {
-    kill_chain_name: String,
-    phase_name: String,
+    pub kill_chain_name: String,
+    pub phase_name: String,
 }
 
 impl KillChainPhase {
