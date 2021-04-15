@@ -276,6 +276,11 @@ impl ToTokens for Collection {
                 pub fn data(&self) -> &'a D {
                     self.data
                 }
+
+                /// The parent collection in which this node's data resides.
+                pub fn collection(&self) -> &'a Collection {
+                    self.collection
+                }
             }
 
             impl<'a, D> ::std::ops::Deref for Node<'a, D> {
