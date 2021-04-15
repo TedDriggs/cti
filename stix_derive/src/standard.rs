@@ -29,6 +29,9 @@ fn standard_tuples() -> Vec<(&'static str, Vec<Relationship>)> {
             "AttackPattern",
             vec![
                 rel("Compromises", "Infrastructure"),
+                // XXX this is not in the OASIS standard, but custom relationships are not
+                // yet supported and `attck` is the crate's primary consumer.
+                rel("SubtechniqueOf", "AttackPattern"),
                 rel("Delivers", "Malware"),
                 rel("Targets", "Identity"),
                 rel("Targets", "Location"),
