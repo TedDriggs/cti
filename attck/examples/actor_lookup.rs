@@ -50,12 +50,6 @@ fn search<'store>(store: &'store Collection, term: &str) -> Option<Node<'store, 
 
 fn main() {
     let enterprise = attck::enterprise();
-    for st in enterprise
-        .attack_patterns()
-        .filter(|ap| ap.mitre.platforms.contains("Linux") && ap.mitre.is_subtechnique != Some(true))
-    {
-        println!("{}", st.name());
-    }
     if let Some(actor) = search(&enterprise, "APT1") {
         display_actor(&actor);
     } else {

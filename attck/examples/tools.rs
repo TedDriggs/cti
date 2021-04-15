@@ -1,4 +1,5 @@
-use stix::{Id, Tool};
+use attck::Tool;
+use stix::Id;
 
 fn main() {
     let enterprise = attck::enterprise();

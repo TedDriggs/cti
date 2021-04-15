@@ -1,12 +1,16 @@
 mod attack_pattern;
 mod declaration;
+mod malware;
 mod matrix;
 mod tactic;
+mod tool;
 
-pub use attack_pattern::AttackPattern;
+pub use attack_pattern::{AttackPattern, MitreAttackPattern};
 pub use declaration::*;
+pub use malware::{Malware, MitreMalware};
 pub use matrix::Matrix;
 pub use tactic::Tactic;
+pub use tool::{MitreTool, Tool};
 
 /// Load the complete Enterprise ATT&CK framework packaged with the crate.
 ///

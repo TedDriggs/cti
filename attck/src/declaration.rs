@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use crate::{AttackPattern, Matrix, Tactic};
+use crate::{AttackPattern, Malware, Matrix, Tactic, Tool};
 
 #[stix::declaration]
 #[derive(Deserialize)]
@@ -8,8 +8,10 @@ use crate::{AttackPattern, Matrix, Tactic};
 #[non_exhaustive]
 pub enum Declaration {
     AttackPattern(AttackPattern),
+    Malware(Malware),
     #[serde(rename = "x-mitre-matrix")]
     Matrix(Matrix),
     #[serde(rename = "x-mitre-tactic")]
     Tactic(Tactic),
+    Tool(Tool),
 }
