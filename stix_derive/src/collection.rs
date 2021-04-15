@@ -244,7 +244,6 @@ impl ToTokens for Collection {
             ///
             /// Relationships are expressed as instance methods, scoped using the concrete type
             /// of the object data, e.g. `Node<'a, IntrusionSet>` exposes `uses_attack_patterns`.
-            #[derive(Clone)]
             #vis struct Node<'a, D> {
                 data: &'a D,
                 collection: &'a Collection,
@@ -288,6 +287,15 @@ impl ToTokens for Collection {
 
                 fn deref(&self) -> &Self::Target {
                     self.data
+                }
+            }
+
+            impl<'a, D> ::std::clone::Clone for Node<'a, D> {
+                fn clone(&self) -> Self {
+                    Self {
+                        data: self.data,
+                        collection: self.collection,
+                    }
                 }
             }
 
