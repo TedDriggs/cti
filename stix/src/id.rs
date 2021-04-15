@@ -59,6 +59,13 @@ impl FromStr for Id {
     }
 }
 
+/// Create an ID from a static string. This is equivalent to calling `"".parse().unwrap()`.
+impl From<&'static str> for Id {
+    fn from(id: &'static str) -> Self {
+        id.parse().unwrap()
+    }
+}
+
 impl Serialize for Id {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
