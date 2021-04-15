@@ -21,7 +21,7 @@ impl RelationshipType {
             "Has" => "present_in".to_string(),
             "LocatedAt" => "location_of".to_string(),
             "OriginatesFrom" => "origin_of".to_string(),
-            "SubtechniqueOf" => "parent_technique_of".to_string(),
+            "SubtechniqueOf" => "subtechnique".to_string(),
             other => {
                 if let Some(s) = invert_relationship(&other.to_snake_case()) {
                     s
