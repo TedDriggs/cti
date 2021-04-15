@@ -7,6 +7,7 @@ use standard::standard_objects;
 use syn::DeriveInput;
 
 mod collection;
+mod custom_properties;
 mod plurals;
 mod relationship;
 mod standard;
@@ -71,9 +72,16 @@ pub fn vocabulary(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     tokens.into()
 }
 
-/// Transform an enum into an extension of the STIX standard's object types.
+/// Generate a declaration enum which extends the standard STIX declaration.
+///
+/// The enum on which this macro is invoked will have variants added for any standards-defined
+/// STIX objects that do not already have a corresponding variant.
+///
+/// Declaring a variant of the same name as a built-in object will use the type from
+/// the deriving enum's variant for that object in the emitted declaration. Use this to
+/// extend built-in objects.
 #[proc_macro_attribute]
-pub fn extension(
+pub fn declaration(
     _attr: proc_macro::TokenStream,
     item: proc_macro::TokenStream,
 ) -> proc_macro::TokenStream {
@@ -134,4 +142,56 @@ pub fn extension(
     }
 
     quote!(#input #di).into()
+}
+
+/// Make a container for custom properties on a STIX object.
+///
+/// The STIX specification allows namespaced custom properties, which should be named as
+/// `x_$NAMESPACE_$PROPERTY_NAME`. This macro handles the renaming of all the struct's fields
+/// for deserialization.
+///
+/// # Example
+/// ```rust,ignore
+/// use std::collections::BTreeSet;
+///
+/// use serde::Deserialize;
+/// use stix::CommonProperties;
+///
+/// // These are the additional properties MITRE defines. This struct is public so that
+/// // other STIX crates can include it as a member in their final `AttackPattern` struct.
+/// #[stix::custom_properties(namespace = "mitre")]
+/// #[derive(Default, Deserialize)]
+/// #[serde(default)]
+/// pub struct MitreMalware {
+///     // This will deserialize from `x_mitre_aliases`
+///     pub aliases: BTreeSet<String>,
+///     pub platforms: BTreeSet<String>,
+/// }
+///
+/// // This is the combination of the standards-defined properties and the MITRE properties.
+/// // This is exposed as `AttackPattern` so that `attck::AttackPattern` is immediately usable
+/// // for working with STIX data.
+/// #[derive(Deserialize, stix::TypedObject)]
+/// pub struct Malware {
+///     // Both declarations are marked flatten here so they merge.
+///     #[serde(flatten)]
+///     pub base: stix::Malware,
+///     #[serde(flatten)]
+///     pub mitre: MitreMalware,
+/// }
+/// ```
+#[proc_macro_attribute]
+pub fn custom_properties(
+    attr: proc_macro::TokenStream,
+    item: proc_macro::TokenStream,
+) -> proc_macro::TokenStream {
+    let tokens = match custom_properties::custom_properties(
+        syn::parse_macro_input!(attr),
+        syn::parse_macro_input!(item),
+    ) {
+        Ok(v) => quote!(#v),
+        Err(e) => e.write_errors(),
+    };
+
+    tokens.into()
 }

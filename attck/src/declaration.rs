@@ -2,7 +2,7 @@ use serde::Deserialize;
 
 use crate::{AttackPattern, Matrix, Tactic};
 
-#[stix::extension]
+#[stix::declaration]
 #[derive(Deserialize)]
 #[serde(tag = "type", rename_all = "kebab-case")]
 #[non_exhaustive]

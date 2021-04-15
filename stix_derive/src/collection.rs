@@ -244,6 +244,7 @@ impl ToTokens for Collection {
             ///
             /// Relationships are expressed as instance methods, scoped using the concrete type
             /// of the object data, e.g. `Node<'a, IntrusionSet>` exposes `uses_attack_patterns`.
+            #[derive(Clone)]
             #vis struct Node<'a, D> {
                 data: &'a D,
                 collection: &'a Collection,
@@ -264,6 +265,16 @@ impl ToTokens for Collection {
                         collection: self.collection,
                         object_type: ::std::marker::PhantomData::<E>,
                     }
+                }
+
+                /// The contents of the STIX object for this node.
+                ///
+                /// # Usage
+                /// This is particularly useful when working with iterators: While the `Node`
+                /// might be consumed by a transformation, the underlying data will live as long
+                /// as its parent [`Collection`].
+                pub fn data(&self) -> &'a D {
+                    self.data
                 }
             }
 
@@ -491,19 +502,26 @@ impl ToTokens for RelMatrix<'_> {
                 })
                 .collect::<Vec<_>>();
 
-            if forward_rows.is_empty() && reverse_rows.is_empty() {
-                continue;
+            let ty = variant.ty();
+            if !forward_rows.is_empty() || !reverse_rows.is_empty() {
+                tokens.append_all(quote! {
+                    impl<'a> Node<'a, #ty> {
+                        #(#forward_rows)*
+
+                        #(#reverse_rows)*
+                    }
+                });
             }
 
-            let ty = variant.ty();
-
+            // Generate AsRef on the concrete type to avoid creating impl collisions with the
+            // CommonProperties AsRef.
             tokens.append_all(quote! {
-                impl<'a> Node<'a, #ty> {
-                    #(#forward_rows)*
-
-                    #(#reverse_rows)*
+                impl<'a> ::std::convert::AsRef<#ty> for Node<'a, #ty> {
+                    fn as_ref(&self) -> &#ty {
+                        self.data()
+                    }
                 }
-            })
+            });
         }
     }
 }

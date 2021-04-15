@@ -3,7 +3,7 @@
 
 use serde::Deserialize;
 
-#[stix_derive::extension]
+#[stix_derive::declaration]
 #[derive(Deserialize)]
 #[serde(tag = "type", rename_all = "kebab-case")]
 #[non_exhaustive]
