@@ -247,7 +247,6 @@ impl ToTokens for Collection {
             ///
             /// `Ref` is used to allow exploration of STIX collections when not every object referenced is
             /// present in-memory.
-            #[derive(Clone)]
             #vis struct Ref<'id, 'collection: 'id, D> {
                 id: &'id #stix::Id,
                 collection: &'collection Collection,
@@ -279,6 +278,12 @@ impl ToTokens for Collection {
             }
 
             #(#ref_impls)*
+
+            impl<'id, 'collection: 'id, D> ::std::clone::Clone for Ref<'id, 'collection, D> {
+                fn clone(&self) -> Self {
+                    Self::new(self.id, self.collection)
+                }
+            }
 
             /// A STIX object in the [`Collection`], exposing the object's data and references
             /// to associated objects in the same collection.
