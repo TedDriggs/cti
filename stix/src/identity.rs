@@ -1,8 +1,11 @@
-use std::fmt;
+use std::{collections::BTreeSet, fmt};
 
 use serde::Deserialize;
 
-use crate::CommonProperties;
+use crate::{
+    vocab::{IdentityClass, IndustrySector},
+    CommonProperties,
+};
 
 #[derive(Deserialize, stix_derive::TypedObject)]
 #[typed_object(core)]
@@ -13,7 +16,13 @@ pub struct Identity {
     #[serde(default)]
     description: Option<String>,
     #[serde(default)]
-    contact_information: Option<ContactInformation>,
+    pub roles: Vec<String>,
+    #[serde(default)]
+    pub identity_class: Option<IdentityClass>,
+    #[serde(default)]
+    pub sectors: BTreeSet<IndustrySector>,
+    #[serde(default)]
+    pub contact_information: Option<ContactInformation>,
 }
 
 impl Identity {

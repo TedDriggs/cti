@@ -59,6 +59,11 @@ stix_derive::vocabulary!(
 
 stix_derive::vocabulary!(
     #[vocabulary(core)]
+    IdentityClass = [individual, group, system, organization, class, unknown]
+);
+
+stix_derive::vocabulary!(
+    #[vocabulary(core)]
     ImplementationLanguage = [
         applescript,
         bash,
@@ -81,6 +86,46 @@ stix_derive::vocabulary!(
         visual_basic,
         x86_32,
         x86_64
+    ]
+);
+
+stix_derive::vocabulary!(
+    #[vocabulary(core)]
+    IndustrySector = [
+        agriculture,
+        aerospace,
+        automotive,
+        chemical,
+        commercial,
+        communications,
+        construction,
+        defense,
+        education,
+        energy,
+        entertainment,
+        financial_services,
+        government,
+        emergency_services,
+        government_local,
+        government_national,
+        government_public_services,
+        government_regional,
+        healthcare,
+        hospitality_leisure,
+        infrastructure,
+        dams,
+        nuclear,
+        water,
+        insurance,
+        manufacturing,
+        mining,
+        non_profit,
+        pharmaceuticals,
+        retail,
+        technology,
+        telecommunications,
+        transportation,
+        utilities
     ]
 );
 
