@@ -91,6 +91,19 @@ stix_derive::vocabulary!(
 
 stix_derive::vocabulary!(
     #[vocabulary(core)]
+    IndicatorType = [
+        anomalous_activity,
+        anonymization,
+        benign,
+        compromised,
+        malicious_activity,
+        attribution,
+        unknown
+    ]
+);
+
+stix_derive::vocabulary!(
+    #[vocabulary(core)]
     IndustrySector = [
         agriculture,
         aerospace,
@@ -198,6 +211,11 @@ stix_derive::vocabulary!(
         wiper,
         worm
     ]
+);
+
+stix_derive::vocabulary!(
+    #[vocabulary(core)]
+    PatternType = [stix, pcre, sigma, snort, suricata, yara]
 );
 
 stix_derive::vocabulary!(

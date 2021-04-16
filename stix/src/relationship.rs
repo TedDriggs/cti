@@ -12,6 +12,7 @@ use crate::{CommonProperties, Id, TypedObject};
 pub enum RelationshipType {
     AttributedTo,
     AuthoredBy,
+    BasedOn,
     BeaconsTo,
     Compromises,
     Controls,
@@ -25,6 +26,7 @@ pub enum RelationshipType {
     Hosts,
     Impersonates,
     Indicates,
+    Investigates,
     LocatedAt,
     Mitigates,
     OriginatesFrom,
