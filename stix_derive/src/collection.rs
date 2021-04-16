@@ -116,6 +116,16 @@ impl ToTokens for Collection {
             }
 
             impl CollectionBuilder {
+                /// Insert an item into the collection.
+                ///
+                /// If a resource with the same ID already exists in the collection, the older value is 
+                /// returned inside `Some(_)`.
+                pub fn insert<D: ::std::convert::Into<#ident>>(&mut self, object: D) -> Option<#ident> {
+                    match object.into() {
+                        #(#builder_match_arms)*
+                    }
+                }
+
                 /// Add a bundle to the collection.
                 ///
                 /// # ID Collisions
@@ -123,9 +133,7 @@ impl ToTokens for Collection {
                 /// be replaced with the new values.
                 pub fn add_bundle(&mut self, bundle: #stix::Bundle<#ident>) {
                     for declaration in bundle.objects {
-                        match declaration {
-                            #(#builder_match_arms),*
-                        }
+                        self.insert(declaration);
                     }
                 }
 
@@ -135,9 +143,25 @@ impl ToTokens for Collection {
                 }
             }
 
-            impl<'a> Into<#stix::RelationshipGraph<'a>> for &'a CollectionBuilder {
+            impl ::std::convert::From<#stix::Bundle<#ident>> for CollectionBuilder {
+                fn from(bundle: #stix::Bundle<#ident>) -> Self {
+                    let mut builder = Self::default();
+                    builder.add_bundle(bundle);
+                    builder
+                }
+            }
+
+            impl<'a> ::std::convert::Into<#stix::RelationshipGraph<'a>> for &'a CollectionBuilder {
                 fn into(self) -> #stix::RelationshipGraph<'a> {
                     self.relationships.values().collect()
+                }
+            }
+
+            impl<D: ::std::convert::Into<#ident>> ::std::iter::Extend<D> for CollectionBuilder {
+                fn extend<T: ::std::iter::IntoIterator<Item = D>>(&mut self, iter: T) {
+                    for item in iter {
+                        self.insert(item);
+                    }
                 }
             }
 
@@ -322,12 +346,14 @@ impl ToTokens for BuilderMatchArm<'_> {
 
         if self.0.variant.has_value() {
             tokens.append_all(quote! {
-                #enum_ident::#variant_ident(v) => { self.#dest.insert(#stix::Object::id(&v).clone(), v); }
+                #enum_ident::#variant_ident(v) => { 
+                    self.#dest.insert(#stix::Object::id(&v).clone(), v).map(#enum_ident::#variant_ident) 
+                }
             });
         } else {
             // Known-ignored declaration types are handled to ensure that the enum match remains exhaustive
             tokens.append_all(quote! {
-                #enum_ident::#variant_ident => {}
+                #enum_ident::#variant_ident => None,
             });
         }
     }
