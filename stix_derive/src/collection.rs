@@ -421,10 +421,13 @@ impl Variant {
         }
     }
 
-    pub fn to_rel_tuples<'a>(&'a self) -> impl Iterator<Item = RelTuple<'a>> {
+    fn to_rel_tuples<'a>(&'a self) -> impl Iterator<Item = RelTuple<'a>> {
+        let ident = &self.ident;
         self.rel
             .iter()
-            .map(move |rel| (&self.ident, &rel.rel, &rel.to))
+            .map(move |rel| RelTuple::new(ident, Cow::Borrowed(&rel.rel), &rel.to))
+            .chain(Some(RelTuple::new_reflexive(ident, "DerivedFrom")))
+            .chain(Some(RelTuple::new_reflexive(ident, "DuplicateOf")))
     }
 
     fn merge(&mut self, other: Variant) {
@@ -529,43 +532,41 @@ impl ToTokens for RelMatrix<'_> {
         for (ident, variant) in &self.objects_by_ident {
             let ident_str = ident.to_string();
 
-            let forward_rows = self
+            let outgoing_rels = self
                 .tuples
                 .iter()
-                .filter(|tup| tup.0 == &ident_str)
+                .filter(|tup| tup.source == &ident_str)
                 .map(|i| RelMatrixItem {
-                    rel: &i.1,
+                    rel: &i.rel_type,
                     is_reversed: false,
                     dest: self
                         .objects_by_ident
-                        .get(i.2)
+                        .get(i.target)
                         .copied()
-                        .ok_or_else(|| variant_not_found(i.2).write_errors()),
-                })
-                .collect::<Vec<_>>();
+                        .ok_or_else(|| variant_not_found(i.target).write_errors()),
+                });
 
-            let reverse_rows = self
+            let incoming_rels = self
                 .tuples
                 .iter()
-                .filter(|tup| tup.2 == &ident_str)
+                .filter(|tup| tup.target == &ident_str)
                 .map(|i| RelMatrixItem {
-                    rel: &i.1,
+                    rel: &i.rel_type,
                     is_reversed: true,
                     dest: self
                         .objects_by_ident
-                        .get(i.0)
+                        .get(i.source)
                         .copied()
-                        .ok_or_else(|| variant_not_found(i.0).write_errors()),
-                })
-                .collect::<Vec<_>>();
+                        .ok_or_else(|| variant_not_found(i.source).write_errors()),
+                });
+
+            let rels = outgoing_rels.chain(incoming_rels).collect::<Vec<_>>();
 
             let ty = variant.ty();
-            if !forward_rows.is_empty() || !reverse_rows.is_empty() {
+            if !rels.is_empty() {
                 tokens.append_all(quote! {
                     impl<'a> Node<'a, #ty> {
-                        #(#forward_rows)*
-
-                        #(#reverse_rows)*
+                        #(#rels)*
                     }
                 });
             }
@@ -636,4 +637,28 @@ impl ToTokens for RelMatrixItem<'_> {
     }
 }
 
-type RelTuple<'a> = (&'a Ident, &'a RelationshipType, &'a Ident);
+struct RelTuple<'a> {
+    /// The ident of the variant from which this relationship originates
+    source: &'a Ident,
+    rel_type: Cow<'a, RelationshipType>,
+    /// The ident of the variant at which this relationship terminates
+    target: &'a Ident,
+}
+
+impl<'a> RelTuple<'a> {
+    fn new(source: &'a Ident, rel_type: Cow<'a, RelationshipType>, target: &'a Ident) -> Self {
+        Self {
+            source,
+            rel_type,
+            target,
+        }
+    }
+
+    fn new_reflexive(source: &'a Ident, rel_type: &str) -> Self {
+        Self::new(
+            source,
+            Cow::Owned(RelationshipType::from(Ident::new(rel_type, source.span()))),
+            source,
+        )
+    }
+}
