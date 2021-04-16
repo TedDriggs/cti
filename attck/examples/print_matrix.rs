@@ -69,7 +69,7 @@ impl<'a> DisplayMatrix<'a> {
 impl fmt::Display for DisplayMatrix<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for (tactic, techniques) in &self.columns {
-            write!(f, "{} | ", tactic.name)?;
+            write!(f, "{} ({}) | ", tactic.name, tactic.mitre_id().unwrap())?;
             if techniques.is_empty() {
                 writeln!(f, "No techniques")?;
                 continue;

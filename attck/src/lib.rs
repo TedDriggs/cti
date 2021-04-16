@@ -2,6 +2,7 @@ mod attack_pattern;
 mod declaration;
 mod malware;
 mod matrix;
+mod mitre_id;
 mod tactic;
 mod tool;
 
@@ -9,6 +10,7 @@ pub use attack_pattern::{AttackPattern, MitreAttackPattern};
 pub use declaration::*;
 pub use malware::{Malware, MitreMalware};
 pub use matrix::Matrix;
+pub(crate) use mitre_id::get_mitre_id;
 pub use tactic::Tactic;
 pub use tool::{MitreTool, Tool};
 

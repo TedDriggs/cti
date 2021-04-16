@@ -1,7 +1,9 @@
 use std::collections::BTreeSet;
 
 use serde::Deserialize;
-use stix::CommonProperties;
+use stix::{CommonProperties, Object};
+
+use crate::get_mitre_id;
 
 /// MITRE custom properties to extend the `attack-pattern` STIX domain object.
 #[stix::custom_properties(namespace = "mitre")]
@@ -34,6 +36,11 @@ pub struct AttackPattern {
 impl AttackPattern {
     pub fn name(&self) -> &str {
         &self.base.name
+    }
+
+    /// Get the MITRE ID for this attack pattern, such as `T1156` or `T1546.004`.
+    pub fn mitre_id(&self) -> Option<&str> {
+        self.external_references().iter().find_map(get_mitre_id)
     }
 }
 
