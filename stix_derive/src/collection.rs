@@ -206,11 +206,7 @@ impl ToTokens for Collection {
                 {
                     // TODO return an Err if D::TYPE != id.object_type()
 
-                    #stix::Resolve::resolve(Ref::<'id, 'a, D> {
-                        id,
-                        collection: self,
-                        object_type: ::std::marker::PhantomData::<D>,
-                    })
+                    #stix::Resolve::resolve(Ref::<'id, 'a, D>::new(id, self))
                 }
 
                 /// Get whether the collection has no items.
@@ -259,6 +255,10 @@ impl ToTokens for Collection {
             }
 
             impl<'id, 'collection: 'id, D> Ref<'id, 'collection, D> {
+                fn new(id: &'id #stix::Id, collection: &'collection Collection) -> Self {
+                    Ref { id, collection, object_type: ::std::marker::PhantomData::<D> }
+                }
+
                 /// The ID the `Ref` will look up in the collection.
                 pub fn id(&self) -> &'id #stix::Id {
                     self.id
@@ -271,11 +271,7 @@ impl ToTokens for Collection {
                 /// This requires knowing the concrete type of the data associated with the ID.
                 pub fn downcast<D: #stix::TypedObject>(self) -> Option<Ref<'id, 'collection, D>> {
                     if self.id.object_type() == D::TYPE {
-                        Some(Ref {
-                            id: self.id,
-                            collection: self.collection,
-                            object_type: ::std::marker::PhantomData::<D>,
-                        })
+                        Some(Ref::new(self.id, self.collection))
                     } else {
                         None
                     }
@@ -295,20 +291,10 @@ impl ToTokens for Collection {
             }
 
             impl<'a, D> Node<'a, D> {
+                /// Create a new instance. This function trusts that `data` is in `collection`;
+                /// violating that trust is unsafe.
                 fn new(data: &'a D, collection: &'a Collection) -> Self {
                     Self { data, collection }
-                }
-
-                fn link<E>(&'a self, data: &'a E) -> Node<'a, E> {
-                    Node::new(data, self.collection)
-                }
-
-                fn create_ref<E>(&self, id: &'a #stix::Id) -> Ref<'a, 'a, E> {
-                    Ref {
-                        id,
-                        collection: self.collection,
-                        object_type: ::std::marker::PhantomData::<E>,
-                    }
                 }
 
                 /// The contents of the STIX object for this node.
@@ -367,8 +353,8 @@ impl ToTokens for BuilderMatchArm<'_> {
 
         if self.0.variant.has_value() {
             tokens.append_all(quote! {
-                #enum_ident::#variant_ident(v) => { 
-                    self.#dest.insert(#stix::Object::id(&v).clone(), v).map(#enum_ident::#variant_ident) 
+                #enum_ident::#variant_ident(v) => {
+                    self.#dest.insert(#stix::Object::id(&v).clone(), v).map(#enum_ident::#variant_ident)
                 }
             });
         } else {
@@ -624,11 +610,12 @@ impl ToTokens for RelMatrixItem<'_> {
                     );
 
                     tokens.append_all(quote! {
-                    pub fn #method_name(&'a self) -> impl ::std::iter::Iterator<Item = Ref<'a, 'a, #ty>> {
+                    pub fn #method_name(&self) -> impl ::std::iter::Iterator<Item = Ref<'a, 'a, #ty>> {
+                        let collection = self.collection;
                         self.collection.graph().peers_matching(
                             #stix::Object::id(self.data),
                             #stix::relationship::Filter::#filter_method_name::<#ty>(#stix::RelationshipType::#rel_type),
-                        ).map(move |id| self.create_ref::<#ty>(id))
+                        ).map(move |id| Ref::new(id, collection))
                     }
                 })
                 }
