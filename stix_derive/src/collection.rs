@@ -285,6 +285,12 @@ impl ToTokens for Collection {
                 }
             }
 
+            impl<D> ::std::fmt::Display for Ref<'_, '_, D> {
+                fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                    self.id.fmt(f)
+                }
+            }
+
             /// A STIX object in the [`Collection`], exposing the object's data and references
             /// to associated objects in the same collection.
             ///
