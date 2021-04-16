@@ -103,6 +103,7 @@ impl ToTokens for Collection {
         let (_, ty_generics, where_clause) = self.generics.split_for_impl();
         let builder_match_arms = self.variants_as(BuilderMatchArm);
         let store_fields = self.variants_as(FieldDeclaration);
+        let store_field_names = self.variants_as(|v| v.set_name());
         let resource_iters = self.variants_as(ResourceIter);
         let ref_impls = self.variants_as(RefImpl);
         let rel_matrix = self.to_rel_matrix();
@@ -135,6 +136,16 @@ impl ToTokens for Collection {
                     for declaration in bundle.objects {
                         self.insert(declaration);
                     }
+                }
+
+                /// Get whether the collection has no items.
+                pub fn is_empty(&self) -> bool {
+                    #(self.#store_field_names.is_empty())&&*
+                }
+
+                /// Get the number of objects in the collection.
+                pub fn len(&self) -> usize {
+                    #(self.#store_field_names.len())+*
                 }
 
                 /// Finish adding items to the collection and index it for querying.
@@ -200,6 +211,16 @@ impl ToTokens for Collection {
                         collection: self,
                         object_type: ::std::marker::PhantomData::<D>,
                     })
+                }
+
+                /// Get whether the collection has no items.
+                pub fn is_empty(&self) -> bool {
+                    self.data().is_empty()
+                }
+
+                /// Get the number of objects in the collection.
+                pub fn len(&self) -> usize {
+                    self.data().len()
                 }
             }
 
@@ -421,11 +442,11 @@ pub struct LinkedVariant<'a> {
 }
 
 impl<'a> LinkedVariant<'a> {
-    fn declaration_ident(&'a self) -> &'a Ident {
+    fn declaration_ident(&self) -> &'a Ident {
         &self.parent.ident
     }
 
-    fn variant_ident(&'a self) -> &'a Ident {
+    fn variant_ident(&self) -> &'a Ident {
         &self.variant.ident
     }
 
@@ -433,11 +454,11 @@ impl<'a> LinkedVariant<'a> {
         self.parent.core
     }
 
-    fn set_name(&'a self) -> Cow<'a, Ident> {
+    fn set_name(&self) -> Cow<'a, Ident> {
         self.variant.set_name()
     }
 
-    fn ty(&'a self) -> Option<&'a Type> {
+    fn ty(&self) -> Option<&'a Type> {
         self.variant.ty()
     }
 }
