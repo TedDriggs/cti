@@ -200,13 +200,50 @@ impl ToTokens for Collection {
 
                 /// Get the object identified by `id` if it is present in the collection. This function returns a
                 /// [`Node`] which provides access to the object's data and its relationships within the collection.
+                ///
+                /// # Panics
+                /// This method will panic if `D::TYPE != id.object_type()`; there can never be a `D` with
+                /// the specified ID. Use [`Collection::try_get`] instead if the ID's object type is not known
+                /// at compile time.
                 pub fn get<'id, 'a: 'id, D>(&'a self, id: &'id #stix::Id) -> Option<Node<'a, D>>
                 where
+                    D: #stix::TypedObject,
                     Ref<'id, 'a, D>: #stix::Resolve<Output = Node<'a, D>>,
                 {
-                    // TODO return an Err if D::TYPE != id.object_type()
+                    self.try_get_internal::<D>(id).unwrap()
+                }
 
-                    #stix::Resolve::resolve(Ref::<'id, 'a, D>::new(id, self))
+                /// Get the object identified by `id` if it is present in the collection. This function returns a
+                /// [`Node`] which provides access to the object's data and its relationships within the collection.
+                ///
+                /// # Errors
+                /// This method will return an error if the ID's object type and the return type's `TYPE`
+                /// are different, since there can never be a `D` with the specified ID.
+                pub fn try_get<'id, 'a: 'id, D>(
+                    &'a self,
+                    id: &'id #stix::Id,
+                ) -> ::std::result::Result<Option<Node<'a, D>>, #stix::IdTypeMismatchError<'static>>
+                where
+                    D: #stix::TypedObject,
+                    Ref<'id, 'a, D>: #stix::Resolve<Output = Node<'a, D>>
+                {
+                    self.try_get_internal::<D>(id).map_err(|e| e.to_owned())
+                }
+
+                fn try_get_internal<'id, 'a: 'id, D>(
+                    &'a self,
+                    id: &'id #stix::Id,
+                ) -> ::std::result::Result<Option<Node<'a, D>>, #stix::IdTypeMismatchError<'id>>
+                where
+                    D: #stix::TypedObject,
+                    Ref<'id, 'a, D>: #stix::Resolve<Output = Node<'a, D>>
+                {
+                    let return_type_name = <D as #stix::TypedObject>::TYPE;
+                    if return_type_name != id.object_type() {
+                        return Err(#stix::IdTypeMismatchError::new::<D>(id));
+                    }
+            
+                    Ok(#stix::Resolve::resolve(Ref::<'id, 'a, D>::new(id, self)))
                 }
 
                 /// Get whether the collection has no items.

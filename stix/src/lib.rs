@@ -2,6 +2,7 @@ mod attack_pattern;
 mod bundle;
 mod campaign;
 mod course_of_action;
+mod error;
 mod id;
 pub mod identity;
 pub mod indicator;
@@ -24,6 +25,7 @@ pub use attack_pattern::AttackPattern;
 pub use bundle::Bundle;
 pub use campaign::Campaign;
 pub use course_of_action::CourseOfAction;
+pub use error::IdTypeMismatchError;
 pub use id::{Id, IdParseError};
 #[doc(inline)]
 pub use identity::Identity;
