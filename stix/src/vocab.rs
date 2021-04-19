@@ -222,3 +222,20 @@ stix_derive::vocabulary!(
     #[vocabulary(core)]
     ProcessorArchitecture = [alpha, arm, ia_64, mips, powerpc, sparc, x86, x86_64]
 );
+
+stix_derive::vocabulary!(
+    #[vocabulary(core)]
+    ReportType = [
+        attack_pattern,
+        campaign,
+        identity,
+        indicator,
+        intrusion_set,
+        malware,
+        observed_data,
+        threat_actor,
+        threat_report,
+        tool,
+        vulnerability
+    ]
+);

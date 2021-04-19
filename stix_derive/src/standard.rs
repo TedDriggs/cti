@@ -138,6 +138,7 @@ fn standard_tuples() -> Vec<(&'static str, Vec<Relationship>)> {
         ),
         ("MarkingDefinition", vec![]),
         ("Relationship", vec![]),
+        ("Report", vec![]),
         (
             "ThreatActor",
             vec![
