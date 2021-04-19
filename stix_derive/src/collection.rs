@@ -111,6 +111,7 @@ impl ToTokens for Collection {
         let stix = self.core;
 
         tokens.append_all(quote! {
+            /// A mutable collection of STIX objects.
             #[derive(Default)]
             #vis struct CollectionBuilder #ty_generics #where_clause {
                 #(#store_fields),*
