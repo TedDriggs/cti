@@ -1,6 +1,7 @@
 mod attack_pattern;
 mod bundle;
 mod campaign;
+pub mod confidence;
 mod course_of_action;
 mod error;
 mod id;
@@ -24,6 +25,7 @@ mod vulnerability;
 pub use attack_pattern::AttackPattern;
 pub use bundle::Bundle;
 pub use campaign::Campaign;
+pub use confidence::Confidence;
 pub use course_of_action::CourseOfAction;
 pub use error::IdTypeMismatchError;
 pub use id::{Id, IdParseError};

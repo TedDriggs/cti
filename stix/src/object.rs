@@ -3,7 +3,7 @@ use std::collections::BTreeSet;
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
 
-use crate::{reference::ExternalReference, Id};
+use crate::{reference::ExternalReference, Confidence, Id};
 
 #[derive(Deserialize)]
 pub struct CommonProperties {
@@ -21,6 +21,8 @@ pub struct CommonProperties {
     created: Option<DateTime<Utc>>,
     #[serde(default)]
     modified: Option<DateTime<Utc>>,
+    #[serde(default)]
+    confidence: Option<Confidence>,
 }
 
 /// Common properties for a STIX Domain Object.
@@ -33,6 +35,7 @@ pub trait Object {
     fn external_references(&self) -> &[ExternalReference];
     fn created(&self) -> Option<&DateTime<Utc>>;
     fn modified(&self) -> Option<&DateTime<Utc>>;
+    fn confidence(&self) -> Option<Confidence>;
 }
 
 impl Object for CommonProperties {
@@ -67,6 +70,10 @@ impl Object for CommonProperties {
     fn object_marking_refs(&self) -> &BTreeSet<Id> {
         &self.object_marking_refs
     }
+
+    fn confidence(&self) -> Option<Confidence> {
+        self.confidence
+    }
 }
 
 impl<T: AsRef<CommonProperties>> Object for T {
@@ -100,6 +107,10 @@ impl<T: AsRef<CommonProperties>> Object for T {
 
     fn modified(&self) -> Option<&DateTime<Utc>> {
         self.as_ref().modified()
+    }
+
+    fn confidence(&self) -> Option<Confidence> {
+        self.as_ref().confidence()
     }
 }
 
