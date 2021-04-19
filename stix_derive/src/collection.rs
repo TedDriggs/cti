@@ -243,7 +243,7 @@ impl ToTokens for Collection {
                     if return_type_name != id.object_type() {
                         return Err(#stix::IdTypeMismatchError::new::<D>(id));
                     }
-            
+
                     Ok(#stix::Resolve::resolve(Ref::<'id, 'a, D>::new(id, self)))
                 }
 
