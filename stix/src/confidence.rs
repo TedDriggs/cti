@@ -1,6 +1,10 @@
 //! Types for working with confidence of STIX objects.
 
-use std::{convert::TryFrom, fmt};
+use std::{
+    cmp::{Ordering, PartialEq, PartialOrd},
+    convert::TryFrom,
+    fmt,
+};
 
 use serde::{de::Error, Deserialize, Deserializer, Serialize};
 use thiserror::Error;
@@ -27,6 +31,18 @@ impl Confidence {
 impl fmt::Display for Confidence {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.0.fmt(f)
+    }
+}
+
+impl PartialEq<u8> for Confidence {
+    fn eq(&self, other: &u8) -> bool {
+        self.0 == *other
+    }
+}
+
+impl PartialOrd<u8> for Confidence {
+    fn partial_cmp(&self, other: &u8) -> Option<Ordering> {
+        self.0.partial_cmp(other)
     }
 }
 
