@@ -94,6 +94,21 @@ impl Collection {
 
         net_new_variants
     }
+
+    /// Get the variant associated with the `identity` object type, if present.
+    pub fn identity_variant<'a>(&'a self) -> Option<LinkedVariant<'a>> {
+        let identity_ident = Ident::new("Identity", Span::call_site());
+        Some(LinkedVariant {
+            variant: self
+                .data
+                .as_ref()
+                .take_enum()
+                .unwrap()
+                .into_iter()
+                .find(|v| v.ident == identity_ident)?,
+            parent: self,
+        })
+    }
 }
 
 impl ToTokens for Collection {
@@ -105,6 +120,7 @@ impl ToTokens for Collection {
         let store_fields = self.variants_as(FieldDeclaration);
         let store_field_names = self.variants_as(|v| v.set_name());
         let resource_iters = self.variants_as(ResourceIter);
+        let node_created_by = NodeCreatedByImpl(self);
         let ref_impls = self.variants_as(RefImpl);
         let rel_matrix = self.to_rel_matrix();
 
@@ -362,6 +378,8 @@ impl ToTokens for Collection {
                 }
             }
 
+            #node_created_by
+
             impl<'a, D> ::std::ops::Deref for Node<'a, D> {
                 type Target = D;
 
@@ -556,6 +574,25 @@ impl ToTokens for RefImpl<'_> {
                     }
                 }
             });
+        }
+    }
+}
+
+struct NodeCreatedByImpl<'a>(&'a Collection);
+
+impl ToTokens for NodeCreatedByImpl<'_> {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        let identity_type = self.0.identity_variant().and_then(|v| v.ty());
+
+        if let Some(ty) = identity_type {
+            let stix = self.0.stix_crate_path();
+            tokens.append_all(quote! {
+                impl<'a, D: #stix::Object> Node<'a, D> {
+                    pub fn created_by(&self) -> Option<Ref<'a, 'a, #ty>> {
+                        Some(Ref::new(#stix::Object::created_by_ref(self.data)?, self.collection))
+                    }
+                }
+            })
         }
     }
 }
