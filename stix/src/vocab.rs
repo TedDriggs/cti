@@ -239,3 +239,26 @@ stix_derive::vocabulary!(
         vulnerability
     ]
 );
+
+#[derive(Debug, Clone, Copy, serde::Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+#[serde(rename_all = "kebab-case")]
+pub enum Opinion {
+    StronglyDisagree,
+    Disagree,
+    Neutral,
+    Agree,
+    StronglyAgree,
+}
+
+impl Opinion {
+    /// Express this opinion as a numeric score on the scale of 1 to 5 (inclusive).
+    pub fn as_score(&self) -> u8 {
+        match self {
+            Opinion::StronglyDisagree => 1,
+            Opinion::Disagree => 2,
+            Opinion::Neutral => 3,
+            Opinion::Agree => 4,
+            Opinion::StronglyAgree => 5,
+        }
+    }
+}
