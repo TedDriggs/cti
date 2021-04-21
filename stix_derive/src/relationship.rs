@@ -15,6 +15,7 @@ impl RelationshipType {
         match self.0.to_string().as_str() {
             "AuthoredBy" => "authored".to_string(),
             "BasedOn" => "basis_of".to_string(),
+            "ConsistsOf" => "constituent_in".to_string(),
             "Controls" => "controlled_by".to_string(),
             "DerivedFrom" => "derived".to_string(),
             "Drops" => "dropped_by".to_string(),
@@ -121,6 +122,10 @@ fn invert_relationship(name: &str) -> Option<String> {
     // Change passive voice, e.g. "attributed_to" -> "attributed"
     if name.ends_with("ed_to") {
         return Some(name[0..name.len() - "_to".len()].to_string());
+    }
+
+    if name.ends_with("analysis_of") {
+        return Some(replace_suffix(name, "analysis_of", "analyzed_by"));
     }
 
     // Change active voice, e.g "beacons_to" -> "beaconed_to_by"

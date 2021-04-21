@@ -59,6 +59,11 @@ stix_derive::vocabulary!(
 
 stix_derive::vocabulary!(
     #[vocabulary(core)]
+    GroupingContext = [suspicious_activity, malware_analysis, unspecified]
+);
+
+stix_derive::vocabulary!(
+    #[vocabulary(core)]
     IdentityClass = [individual, group, system, organization, class, unknown]
 );
 
@@ -183,6 +188,11 @@ stix_derive::vocabulary!(
         steals_authentication_credentials,
         violates_system_operational_integrity
     ]
+);
+
+stix_derive::vocabulary!(
+    #[vocabulary(core)]
+    MalwareResult = [malicious, suspicious, benign, unknown]
 );
 
 stix_derive::vocabulary!(

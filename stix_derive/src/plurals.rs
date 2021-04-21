@@ -6,6 +6,12 @@ pub fn pluralize(s: &str) -> Cow<'static, str> {
         "infrastructure" => Cow::Borrowed("infrastructure"),
         "malware" => Cow::Borrowed("malware"),
         "matrix" => Cow::Borrowed("matrices"),
+        _ if s.ends_with("analysis") => Cow::Owned(
+            s.chars()
+                .take(s.len() - "analysis".len())
+                .chain("analyses".chars())
+                .collect(),
+        ),
         _ if s.ends_with('y') => {
             Cow::Owned(s.chars().take(s.len() - 1).chain("ies".chars()).collect())
         }

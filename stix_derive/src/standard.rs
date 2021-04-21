@@ -70,10 +70,12 @@ fn standard_tuples() -> Vec<(&'static str, Vec<Relationship>)> {
                 rel("Remediates", "Vulnerability"),
             ],
         ),
+        ("Grouping", vec![]),
         ("Identity", vec![rel("LocatedAt", "Location")]),
         (
             "Indicator",
             vec![
+                rel("BasedOn", "ObservedData"),
                 rel("Indicates", "AttackPattern"),
                 rel("Indicates", "Campaign"),
                 rel("Indicates", "Infrastructure"),
@@ -101,6 +103,7 @@ fn standard_tuples() -> Vec<(&'static str, Vec<Relationship>)> {
         (
             "Infrastructure",
             vec![
+                rel("ConsistsOf", "ObservedData"),
                 rel("Controls", "Infrastructure"),
                 rel("Controls", "Malware"),
                 rel("Delivers", "Malware"),
@@ -136,7 +139,19 @@ fn standard_tuples() -> Vec<(&'static str, Vec<Relationship>)> {
                 rel("Uses", "Tool"),
             ],
         ),
+        (
+            "MalwareAnalysis",
+            vec![
+                rel("AnalysisOf", "Malware"),
+                rel("Characterizes", "Malware"),
+                rel("StaticAnalysisOf", "Malware"),
+                rel("DynamicAnalysisOf", "Malware"),
+            ],
+        ),
         ("MarkingDefinition", vec![]),
+        ("Note", vec![]),
+        ("ObservedData", vec![]),
+        ("Opinion", vec![]),
         ("Relationship", vec![]),
         ("Report", vec![]),
         (
