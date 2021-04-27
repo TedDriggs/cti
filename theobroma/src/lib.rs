@@ -18,4 +18,5 @@ pub use step::{
     Step, StepIfCondition, StepParallel, StepPlaybook, StepSingle, StepSwitchCondition,
     StepWhileCondition,
 };
+pub use target::StandardTarget;
 pub use variable::{MaybeVariable, MaybeVariableRef, Variable, VariableType};

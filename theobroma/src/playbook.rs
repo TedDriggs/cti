@@ -82,7 +82,7 @@ pub enum PlaybookFeature {
 pub struct PlaybookFeatures(IndexMap<PlaybookFeature, bool>);
 
 #[derive(Deserialize)]
-pub struct Playbook<T = crate::Target, C = crate::Command> {
+pub struct Playbook<T = crate::StandardTarget, C = crate::Command> {
     pub id: Id,
     pub spec_version: String,
     pub name: String,

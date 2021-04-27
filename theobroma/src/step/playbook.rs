@@ -6,7 +6,7 @@ use crate::Variable;
 use super::{CommonProperties, Target};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct StepPlaybook<T = crate::Target> {
+pub struct StepPlaybook<T = crate::StandardTarget> {
     #[serde(flatten)]
     common: CommonProperties,
     playbook_id: Id,

@@ -23,7 +23,7 @@ pub struct Condition(String);
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize, strum::EnumDiscriminants)]
 #[strum_discriminants(name(StepType))]
 #[serde(tag = "type", rename_all = "kebab-case")]
-pub enum Step<T = crate::Target, C = crate::Command> {
+pub enum Step<T = crate::StandardTarget, C = crate::Command> {
     Start(CommonProperties),
     End(CommonProperties),
     Single(StepSingle<T, C>),

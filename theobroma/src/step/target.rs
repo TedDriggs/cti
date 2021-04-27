@@ -4,7 +4,7 @@ use stix::Id;
 use crate::MaybeVariable;
 
 #[derive(Debug, Clone)]
-pub enum Target<T = crate::Target> {
+pub enum Target<T = crate::StandardTarget> {
     Inline(T),
     Ids(Vec<MaybeVariable<Id>>),
 }
