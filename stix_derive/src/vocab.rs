@@ -158,6 +158,12 @@ impl ToTokens for Vocab {
                 }
             }
 
+            impl<'a> ::std::cmp::PartialEq<&'a #ident> for #ident {
+                fn eq(&self, rhs: &&'a #ident) -> bool {
+                    self == *rhs
+                }
+            }
+
             impl ::std::convert::From<String> for #ident {
                 fn from(s: String) -> Self {
                     Self(::std::borrow::Cow::Owned(s))
@@ -210,7 +216,7 @@ impl ToTokens for LinkedTerm<'_> {
 
         tokens.append_all(quote! {
             #docs
-            pub const #const_ident: Self = Self(::std::borrow::Cow::Borrowed(#term_value));
+            pub const #const_ident: &'static Self = &Self(::std::borrow::Cow::Borrowed(#term_value));
         });
     }
 }
