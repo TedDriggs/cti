@@ -6,7 +6,7 @@ mod def;
 mod maybe;
 
 pub use def::{CommonDef, VariableType};
-pub use maybe::MaybeVariable;
+pub use maybe::{MaybeVariable, MaybeVariableRef};
 
 /// A variable name in a CACAO playbook, e.g. `$$quarantine_target$$`.
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]

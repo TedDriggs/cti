@@ -25,12 +25,27 @@ impl<T> MaybeVariable<T> {
             None
         }
     }
+
+    pub fn as_ref(&self) -> MaybeVariableRef<&T> {
+        match self {
+            Self::Variable(v) => MaybeVariableRef::Variable(v),
+            Self::Value(v) => MaybeVariableRef::Value(v),
+        }
+    }
 }
 
 impl<T> From<Variable> for MaybeVariable<T> {
     fn from(v: Variable) -> Self {
         Self::Variable(v)
     }
+}
+
+/// Borrowed value that may be a reference to a variable or an inline value.
+#[derive(Debug, Clone, Copy, PartialEq, Serialize)]
+#[serde(untagged)]
+pub enum MaybeVariableRef<'a, T> {
+    Variable(&'a Variable),
+    Value(T),
 }
 
 #[cfg(test)]
