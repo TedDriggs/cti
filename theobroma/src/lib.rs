@@ -9,7 +9,7 @@ mod target;
 mod variable;
 
 pub use bounded_u8::OutOfBoundsError;
-pub use command::Command;
+pub use command::{Command, CommandType};
 pub use playbook::{
     Impact, Playbook, PlaybookFeature, PlaybookFeatures, PlaybookType, PlaybookVariableDef,
     Priority, Severity,

@@ -16,6 +16,7 @@ categories = [
 ]
 
 [dependencies]
+base64 = "0.13.0"
 chrono = { version = "0.4.19", features = ["serde"] }
 indexmap = { version = "1.6.2", features = ["serde"] }
 serde = { version = "1.0.125", features = ["derive"] }
