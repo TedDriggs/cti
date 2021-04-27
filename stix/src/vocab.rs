@@ -235,6 +235,41 @@ stix_derive::vocabulary!(
 
 stix_derive::vocabulary!(
     #[vocabulary(core)]
+    Region = [
+        africa,
+        eastern_africa,
+        middle_africa,
+        northern_africa,
+        southern_africa,
+        western_africa,
+        americas,
+        caribbean,
+        central_america,
+        latin_america_caribbean,
+        northern_america,
+        south_america,
+        asia,
+        central_asia,
+        eastern_asia,
+        southern_asia,
+        south_eastern_asia,
+        western_asia,
+        europe,
+        eastern_europe,
+        northern_europe,
+        southern_europe,
+        western_europe,
+        oceania,
+        antarctica,
+        australia_new_zealand,
+        melanesia,
+        micronesia,
+        polynesia,
+    ]
+);
+
+stix_derive::vocabulary!(
+    #[vocabulary(core)]
     ReportType = [
         attack_pattern,
         campaign,

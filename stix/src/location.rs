@@ -1,6 +1,6 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-use crate::CommonProperties;
+use crate::{vocab::Region, CommonProperties};
 
 #[derive(Deserialize)]
 pub struct Coordinates {
@@ -10,10 +10,7 @@ pub struct Coordinates {
     pub precision: Option<f64>,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Region(String);
-
-#[derive(Debug, Deserialize, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
 pub struct Country(String);
 
 #[derive(Deserialize, stix_derive::TypedObject)]
