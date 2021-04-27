@@ -34,6 +34,15 @@ impl<T> MaybeVariable<T> {
     }
 }
 
+impl MaybeVariable<String> {
+    pub fn as_str(&self) -> MaybeVariableRef<&str> {
+        match self {
+            Self::Variable(v) => MaybeVariableRef::Variable(v),
+            Self::Value(v) => MaybeVariableRef::Value(v.as_str()),
+        }
+    }
+}
+
 impl<T> From<Variable> for MaybeVariable<T> {
     fn from(v: Variable) -> Self {
         Self::Variable(v)
