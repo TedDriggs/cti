@@ -1,0 +1,27 @@
+[package]
+name = "theobroma"
+version = "0.1.0"
+authors = ["Ted Driggs <ted.driggs@outlook.com>"]
+edition = "2018"
+license = "MIT"
+repository = "https://github.com/TedDriggs/cti"
+documentation = "https://docs.rs/theobroma/0.1.0"
+description = """
+Utilities for parsing OASIS CACAO
+"""
+keywords = ["cacao", "stix"]
+categories = [
+    "api-bindings",
+    "parser-implementations"
+]
+
+[dependencies]
+chrono = { version = "0.4.19", features = ["serde"] }
+indexmap = { version = "1.6.2", features = ["serde"] }
+serde = { version = "1.0.125", features = ["derive"] }
+strum = { version = "0.20.0", features = ["derive"] }
+stix = { version = "=0.3.0", path = "../stix" }
+thiserror = "1.0.24"
+
+[dev-dependencies]
+serde_json = "1.0.64"

@@ -1,2 +1,2 @@
 [workspace]
-members = ["attck", "stix", "stix_derive"]
+members = ["attck", "stix", "stix_derive", "theobroma"]
