@@ -14,6 +14,12 @@ pub struct StepIfCondition {
     on_false: Vec<Id>,
 }
 
+impl AsRef<CommonProperties> for StepIfCondition {
+    fn as_ref(&self) -> &CommonProperties {
+        &self.common
+    }
+}
+
 impl<'data> ToStepRels<'data> for &'data StepIfCondition {
     fn to_step_rels(self, rels: &mut crate::step_graph::RelStream<'data>) {
         self.common.to_step_rels(rels);

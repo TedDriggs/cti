@@ -24,6 +24,12 @@ impl StepSwitchCondition {
     }
 }
 
+impl AsRef<CommonProperties> for StepSwitchCondition {
+    fn as_ref(&self) -> &CommonProperties {
+        &self.common
+    }
+}
+
 impl<'data> ToStepRels<'data> for &'data StepSwitchCondition {
     fn to_step_rels(self, rels: &mut crate::step_graph::RelStream<'data>) {
         self.common.to_step_rels(rels);

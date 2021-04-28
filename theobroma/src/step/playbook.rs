@@ -18,6 +18,12 @@ pub struct StepPlaybook<T = crate::StandardTarget> {
     out_args: Vec<Variable>,
 }
 
+impl<T> AsRef<CommonProperties> for StepPlaybook<T> {
+    fn as_ref(&self) -> &CommonProperties {
+        &self.common
+    }
+}
+
 impl<'a, T> ToStepRels<'a> for &'a StepPlaybook<T> {
     fn to_step_rels(self, rels: &mut crate::step_graph::RelStream<'a>) {
         self.common.to_step_rels(rels);

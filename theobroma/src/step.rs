@@ -38,6 +38,21 @@ pub enum Step<T = crate::StandardTarget, C = crate::Command> {
     SwitchCondition(StepSwitchCondition),
 }
 
+impl<T, C> AsRef<CommonProperties> for Step<T, C> {
+    fn as_ref(&self) -> &CommonProperties {
+        match self {
+            Step::Start(v) => v,
+            Step::End(v) => v,
+            Step::Single(v) => v.as_ref(),
+            Step::Playbook(v) => v.as_ref(),
+            Step::Parallel(v) => v.as_ref(),
+            Step::IfCondition(v) => v.as_ref(),
+            Step::WhileCondition(v) => v.as_ref(),
+            Step::SwitchCondition(v) => v.as_ref(),
+        }
+    }
+}
+
 impl<T, C> fmt::Display for Step<T, C> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         "TODO display step information".fmt(f)
