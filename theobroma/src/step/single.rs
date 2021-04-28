@@ -10,7 +10,7 @@ pub struct StepSingle<T = crate::StandardTarget, C = crate::Command> {
     common: CommonProperties,
     commands: Vec<C>,
     #[serde(flatten)]
-    target: Target<T>,
+    target: Option<Target<T>>,
     #[serde(default)]
     in_args: Vec<Variable>,
     #[serde(default)]

@@ -11,7 +11,7 @@ pub struct StepPlaybook<T = crate::StandardTarget> {
     common: CommonProperties,
     playbook_id: Id,
     #[serde(flatten)]
-    target: Target<T>,
+    target: Option<Target<T>>,
     #[serde(default)]
     in_args: Vec<Variable>,
     #[serde(default)]
