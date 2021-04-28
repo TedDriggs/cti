@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{fmt, time::Duration};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -51,6 +51,21 @@ pub struct CommonProperties {
     on_success: Option<Id>,
     #[serde(default)]
     on_failure: Option<Id>,
+}
+
+impl fmt::Display for CommonProperties {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match &self.name {
+            Some(name) => name.fmt(f),
+            None => "<unnamed>".fmt(f),
+        }?;
+
+        if let Some(description) = &self.description {
+            write!(f, " ({})", description)?;
+        }
+
+        Ok(())
+    }
 }
 
 impl<'a> ToStepRels<'a> for &'a CommonProperties {

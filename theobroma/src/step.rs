@@ -55,7 +55,7 @@ impl<T, C> AsRef<CommonProperties> for Step<T, C> {
 
 impl<T, C> fmt::Display for Step<T, C> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        "TODO display step information".fmt(f)
+        AsRef::<CommonProperties>::as_ref(self).fmt(f)
     }
 }
 
