@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use stix::Id;
 
-use crate::Variable;
+use crate::{step_graph::ToStepRels, Variable};
 
 use super::{CommonProperties, Target};
 
@@ -16,4 +16,10 @@ pub struct StepPlaybook<T = crate::StandardTarget> {
     in_args: Vec<Variable>,
     #[serde(default)]
     out_args: Vec<Variable>,
+}
+
+impl<'a, T> ToStepRels<'a> for &'a StepPlaybook<T> {
+    fn to_step_rels(self, rels: &mut crate::step_graph::RelStream<'a>) {
+        self.common.to_step_rels(rels);
+    }
 }

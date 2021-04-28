@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::Variable;
+use crate::{step_graph::ToStepRels, Variable};
 
 use super::{CommonProperties, Target};
 
@@ -15,4 +15,10 @@ pub struct StepSingle<T = crate::StandardTarget, C = crate::Command> {
     in_args: Vec<Variable>,
     #[serde(default)]
     out_args: Vec<Variable>,
+}
+
+impl<'a, T, C> ToStepRels<'a> for &'a StepSingle<T, C> {
+    fn to_step_rels(self, rels: &mut crate::step_graph::RelStream<'a>) {
+        self.common.to_step_rels(rels);
+    }
 }

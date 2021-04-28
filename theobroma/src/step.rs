@@ -1,3 +1,7 @@
+use std::fmt;
+
+use crate::step_graph::ToStepRels;
+
 mod common;
 mod if_condition;
 mod parallel;
@@ -32,4 +36,25 @@ pub enum Step<T = crate::StandardTarget, C = crate::Command> {
     IfCondition(StepIfCondition),
     WhileCondition(StepWhileCondition),
     SwitchCondition(StepSwitchCondition),
+}
+
+impl<T, C> fmt::Display for Step<T, C> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        "TODO display step information".fmt(f)
+    }
+}
+
+impl<'a, T, C> ToStepRels<'a> for &'a Step<T, C> {
+    fn to_step_rels(self, rels: &mut crate::step_graph::RelStream<'a>) {
+        match self {
+            Step::Start(v) => v.to_step_rels(rels),
+            Step::End(v) => v.to_step_rels(rels),
+            Step::Single(v) => v.to_step_rels(rels),
+            Step::Playbook(v) => v.to_step_rels(rels),
+            Step::Parallel(v) => v.to_step_rels(rels),
+            Step::IfCondition(v) => v.to_step_rels(rels),
+            Step::WhileCondition(v) => v.to_step_rels(rels),
+            Step::SwitchCondition(v) => v.to_step_rels(rels),
+        }
+    }
 }

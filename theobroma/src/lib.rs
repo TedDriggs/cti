@@ -7,7 +7,9 @@ mod command;
 mod contact;
 mod playbook;
 pub mod step;
+pub mod step_graph;
 pub mod target;
+mod types;
 mod variable;
 
 pub use bounded_u8::OutOfBoundsError;
@@ -23,4 +25,5 @@ pub use step::{
     StepWhileCondition,
 };
 pub use target::{StandardTarget, Target, TargetType};
+pub use types::{OnError, WithId};
 pub use variable::{MaybeVariable, MaybeVariableRef, Variable, VariableType};

@@ -19,6 +19,7 @@ categories = [
 base64 = "0.13.0"
 chrono = { version = "0.4.19", features = ["serde"] }
 indexmap = { version = "1.6.2", features = ["serde"] }
+petgraph = "0.5.1"
 serde = { version = "1.0.125", features = ["derive"] }
 strum = { version = "0.20.0", features = ["derive"] }
 stix = { version = "=0.3.0", path = "../stix" }

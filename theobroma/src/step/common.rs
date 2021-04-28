@@ -4,7 +4,7 @@ use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use stix::{ExternalReference, Id};
 
-use crate::{variable::CommonDef, Variable};
+use crate::{step_graph::ToStepRels, variable::CommonDef, Variable};
 
 mod optional_duration {
     use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -51,4 +51,12 @@ pub struct CommonProperties {
     on_success: Option<Id>,
     #[serde(default)]
     on_failure: Option<Id>,
+}
+
+impl<'a> ToStepRels<'a> for &'a CommonProperties {
+    fn to_step_rels(self, rels: &mut crate::step_graph::RelStream<'a>) {
+        rels.append_all_field("on_completion", &self.on_completion);
+        rels.append_all_field("on_success", &self.on_success);
+        rels.append_all_field("on_failure", &self.on_failure);
+    }
 }
