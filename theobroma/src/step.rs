@@ -11,7 +11,7 @@ mod switch_condition;
 mod target;
 mod while_condition;
 
-pub use common::CommonProperties;
+pub use common::{CommonProperties, OnCompletion};
 pub use if_condition::StepIfCondition;
 pub use parallel::StepParallel;
 pub use playbook::StepPlaybook;
