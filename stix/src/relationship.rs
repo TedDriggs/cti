@@ -21,6 +21,7 @@ pub enum RelationshipType {
     Controls,
     Delivers,
     DerivedFrom,
+    Detects,
     Downloads,
     Drops,
     DuplicateOf,

@@ -1,5 +1,7 @@
 mod attack_pattern;
 mod course_of_action;
+mod data_component;
+mod data_source;
 mod declaration;
 mod malware;
 mod matrix;
@@ -9,6 +11,8 @@ mod tool;
 
 pub use attack_pattern::{AttackPattern, MitreAttackPattern};
 pub use course_of_action::{CourseOfAction, MitreCourseOfAction};
+pub use data_component::DataComponent;
+pub use data_source::DataSource;
 pub use declaration::*;
 pub use malware::{Malware, MitreMalware};
 pub use matrix::Matrix;
